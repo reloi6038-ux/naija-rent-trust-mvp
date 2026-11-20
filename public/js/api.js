@@ -18,7 +18,15 @@ const API = {
     });
     let data = {};
     try { data = await res.json(); } catch {}
-    if (!res.ok) throw new ApiError(data.message || `Request failed (${res.status})`, res.status, data);
+    if (!res.ok) {
+      // Suppress the "error" severity for /auth/me 401s — they're expected.
+      if (res.status === 401 && path.startsWith('/auth/me')) {
+        const err = new ApiError('Not authenticated', 401, data);
+        err.isAuthCheck = true;
+        throw err;
+      }
+      throw new ApiError(data.message || `Request failed (${res.status})`, res.status, data);
+    }
     return data;
   },
   get(p) { return this.request(p); },
@@ -32,4 +40,5 @@ const API = {
     return data;
   }
 };
+
 

@@ -122,12 +122,31 @@
     <div class="container"><div class="footer-bottom">© <span id="year"></span> Naija Rent & Trust MVP · Reviewed by NaijaRent</div></div>
   </footer>
 
+    
+   <!-- MUST load before components -->
+  
+  
+  
+    <!-- Scripts -->
   <script src="/js/api.js"></script>
+  <script src="/js/compare.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
+  <script src="/js/forms.js"></script>
+  
   <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Safe naira formatter (in case components.js didn't load)
+    if (typeof naira === 'undefined') {
+      window.naira = function(n) { return '₦' + Number(n || 0).toLocaleString('en-NG'); };
+    }
+    if (typeof escapeHtml === 'undefined') {
+      window.escapeHtml = function(s) {
+        return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      };
+    }
+
+    document.getElementById('year') && (document.getElementById('year').textContent = new Date().getFullYear());
 
     const form = document.getElementById('filters');
     const results = document.getElementById('results');
@@ -137,118 +156,170 @@
     const drawerFilters = document.getElementById('drawerFilters');
     const openDrawerBtn = document.getElementById('openDrawer');
 
-    // Mirror filters into drawer for mobile
     function mirrorToDrawer() {
-      drawerFilters.innerHTML = form.innerHTML;
-      // wire drawer form controls to sync with real form on apply
+      if (drawerFilters && form) drawerFilters.innerHTML = form.innerHTML;
     }
 
     function buildQuery() {
+      if (!form) return new URLSearchParams();
       const fd = new FormData(form);
       const q = new URLSearchParams();
       for (const [k, v] of fd.entries()) if (v) q.set(k, v);
-      if (sortSel.value) q.set('sort', sortSel.value);
+      if (sortSel && sortSel.value) q.set('sort', sortSel.value);
       return q;
     }
 
     async function load() {
+      if (!results) return;
+      
       results.innerHTML = '';
-      for (let i = 0; i < 6; i++) results.appendChild(Components.skeletonCard());
+      // Render skeletons
+      for (let i = 0; i < 6; i++) {
+        if (typeof Components !== 'undefined' && Components.skeletonCard) {
+          results.appendChild(Components.skeletonCard());
+        } else {
+          results.innerHTML += '<div class="skeleton" style="height:320px;border-radius:14px;"></div>';
+        }
+      }
+      
       try {
         const q = buildQuery();
-        const { data, pagination } = await API.get('/search/advanced?' + q.toString());
+        let data = [], pagination = { total: 0 };
+        
+        try {
+          // Try advanced search first
+          const r = await API.get('/search/advanced?' + q.toString());
+          data = r.data; pagination = r.pagination;
+        } catch (err1) {
+          // Fallback to standard properties endpoint
+          const r = await API.get('/properties?' + q.toString());
+          data = r.data; pagination = r.pagination;
+        }
+
         results.innerHTML = '';
-        count.textContent = `${pagination.total} listing${pagination.total === 1 ? '' : 's'} found`;
-        if (!data.length) {
-          results.appendChild(Components.empty({
-            icon: '/images/empty-search.svg',
-            title: 'No listings match your filters',
-            message: 'Try broadening your search or clearing filters.',
-            actionHtml: '<button class="btn btn-ghost" onclick="document.getElementById(\'clearBtn\').click()">Clear filters</button>'
-          }));
+        if (count) count.textContent = `${pagination.total || 0} listing${pagination.total === 1 ? '' : 's'} found`;
+        
+        if (!data || !data.length) {
+          if (typeof Components !== 'undefined' && Components.empty) {
+            results.appendChild(Components.empty({
+              icon: '/images/empty-search.svg',
+              title: 'No listings match your filters',
+              message: 'Try broadening your search or clearing filters.',
+              actionHtml: '<button class="btn btn-ghost" onclick="document.getElementById(\'clearBtn\').click()">Clear filters</button>'
+            }));
+          } else {
+            results.innerHTML = '<div class="empty"><p>No listings found.</p></div>';
+          }
           return;
         }
-        data.forEach((p) => results.appendChild(Components.propertyCard(p)));
-      } catch {
+
+        data.forEach((p) => {
+          if (typeof Components !== 'undefined' && Components.propertyCard) {
+            results.appendChild(Components.propertyCard(p));
+          } else {
+            results.innerHTML += `<div class="card"><div class="card-body"><h3>${escapeHtml(p.title)}</h3><p>${naira(p.annualRent)}</p></div></div>`;
+          }
+        });
+        
+        if (typeof updateCompareQuick === 'function') updateCompareQuick();
+        
+      } catch (e) {
+        console.error('Load failed:', e);
         results.innerHTML = '';
-        results.appendChild(Components.empty({
-          icon: '/images/empty-search.svg',
-          title: 'Could not load listings',
-          message: 'Please refresh the page.',
-        }));
+        if (typeof Components !== 'undefined' && Components.empty) {
+          results.appendChild(Components.empty({
+            icon: '/images/empty-search.svg',
+            title: 'Could not load listings',
+            message: e.message || 'Please refresh the page.'
+          }));
+        } else {
+          results.innerHTML = `<div class="empty"><p>Error: ${escapeHtml(e.message)}</p></div>`;
+        }
       }
     }
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const q = buildQuery();
-      history.replaceState({}, '', '/pages/properties?' + q.toString());
-      load();
-    });
-    document.getElementById('clearBtn').addEventListener('click', () => {
+    function updateCompareQuick() {
+      const link = document.getElementById('compareQuick');
+      if (!link || typeof Compare === 'undefined') return;
+      const n = Compare.count();
+      link.style.display = n ? 'inline-flex' : 'none';
+      link.textContent = `Compare (${n})`;
+    }
+    
+    if (typeof Compare !== 'undefined') {
+      window.addEventListener('compare:updated', updateCompareQuick);
+      updateCompareQuick();
+    }
+
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const q = buildQuery();
+        history.replaceState({}, '', '/pages/properties?' + q.toString());
+        load();
+      });
+    }
+
+    document.getElementById('clearBtn') && document.getElementById('clearBtn').addEventListener('click', () => {
       setTimeout(() => { history.replaceState({}, '', '/pages/properties'); load(); }, 0);
     });
-    sortSel.addEventListener('change', load);
 
-    // Mobile drawer
+    sortSel && sortSel.addEventListener('change', load);
+
     const mq = window.matchMedia('(max-width:900px)');
     const syncDrawerVisibility = () => {
-      openDrawerBtn.style.display = mq.matches ? 'inline-flex' : 'none';
+      if (openDrawerBtn) openDrawerBtn.style.display = mq.matches ? 'inline-flex' : 'none';
     };
     mq.addEventListener('change', syncDrawerVisibility);
     syncDrawerVisibility();
 
-    openDrawerBtn.addEventListener('click', () => {
+    openDrawerBtn && openDrawerBtn.addEventListener('click', () => {
       mirrorToDrawer();
-      drawer.classList.add('open');
-      drawer.setAttribute('aria-hidden', 'false');
-    });
-    drawer.addEventListener('click', (e) => {
-      if (e.target.matches('[data-close]') || e.target === drawer) {
-        drawer.classList.remove('open');
-        drawer.setAttribute('aria-hidden', 'true');
-      }
-      if (e.target.id === 'drawerApply') {
-        // copy values from drawer into real form
-        const dfs = drawer.querySelectorAll('input,select');
-        const rfs = form.querySelectorAll('input,select');
-        rfs.forEach((rf, i) => {
-          const df = dfs[i];
-          if (!df) return;
-          if (rf.type === 'checkbox') rf.checked = df.checked;
-          else rf.value = df.value;
-        });
-        drawer.classList.remove('open');
-        drawer.setAttribute('aria-hidden', 'true');
-        form.requestSubmit();
-      }
-      if (e.target.id === 'drawerClear') {
-        form.reset();
-        drawer.classList.remove('open');
-        drawer.setAttribute('aria-hidden', 'true');
-        history.replaceState({}, '', '/pages/properties');
-        load();
-      }
+      drawer && drawer.classList.add('open');
+      drawer && drawer.setAttribute('aria-hidden', 'false');
     });
 
-    // Initial URL filter hydration
+    if (drawer) {
+      drawer.addEventListener('click', (e) => {
+        if (e.target.matches('[data-close]') || e.target === drawer) {
+          drawer.classList.remove('open');
+          drawer.setAttribute('aria-hidden', 'true');
+        }
+        if (e.target.id === 'drawerApply') {
+          const dfs = drawer.querySelectorAll('input,select');
+          const rfs = form.querySelectorAll('input,select');
+          rfs.forEach((rf, i) => {
+            const df = dfs[i];
+            if (!df) return;
+            if (rf.type === 'checkbox') rf.checked = df.checked;
+            else rf.value = df.value;
+          });
+          drawer.classList.remove('open');
+          drawer.setAttribute('aria-hidden', 'true');
+          form.requestSubmit();
+        }
+        if (e.target.id === 'drawerClear') {
+          form.reset();
+          drawer.classList.remove('open');
+          drawer.setAttribute('aria-hidden', 'true');
+          history.replaceState({}, '', '/pages/properties');
+          load();
+        }
+      });
+    }
+
+    // Hydrate filters from URL
     const url = new URLSearchParams(location.search);
     url.forEach((v, k) => {
-      if (k === 'sort') { sortSel.value = v; return; }
+      if (k === 'sort') { if (sortSel) sortSel.value = v; return; }
       const el = form.elements[k];
       if (!el) return;
       if (el.type === 'checkbox') el.checked = v === 'true';
       else el.value = v;
     });
+
+    // Initial load
     load();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-

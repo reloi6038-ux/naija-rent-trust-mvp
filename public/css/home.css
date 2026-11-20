@@ -977,3 +977,312 @@ body.home::after {
   }
   .testimonial { transition: none; }
 }
+
+/* ============================================================
+   Properties page — mobile fixes
+   ============================================================ */
+
+/* Collapse the 2-column dash grid on tablet/mobile */
+@media (max-width: 900px) {
+  /* Properties page uses .dash with inline style grid-template-columns: 280px 1fr */
+  /* This selector targets exactly that pattern */
+  .dash[style*="280px"] {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Hide desktop filters (drawer takes over) */
+  .filters-card {
+    display: none !important;
+  }
+
+  /* Show "Filters" button on mobile */
+  #openDrawer {
+    display: inline-flex !important;
+  }
+}
+
+/* Results header: wrap cleanly on mobile */
+@media (max-width: 640px) {
+  /* Flex rows in the results header must wrap */
+  #main .flex-between {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Sort label + dropdown stack neatly */
+  #main .flex-between .row,
+  #main .flex-between .flex {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Sort dropdown width fix */
+  #fSort {
+    max-width: 100%;
+    width: auto;
+    min-width: 140px;
+  }
+
+  /* Map view button — don't let it overflow */
+  #main .flex-between a[href="/pages/map"] {
+    white-space: nowrap;
+  }
+
+  /* Result cards single column */
+  #results.grid-auto {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Mobile filter drawer: full width, safe area */
+  .drawer-panel {
+    width: min(440px, 100vw) !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+  /* Sort dropdown full-width to avoid overflow */
+  #fSort {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  /* Result count pill wraps */
+  #resultCount {
+    font-size: .78rem;
+    padding: 4px 10px;
+  }
+
+  /* Compare quick-link and map view can wrap */
+  #main .flex-between .flex {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ============================================================
+   Drawer fixes (properties page mobile filter)
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .drawer-panel {
+    max-width: 100vw;
+  }
+
+  .drawer-head,
+  .drawer-body,
+  .drawer-foot {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .drawer-body .form-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============================================================
+   Comparison page responsive
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .table {
+    min-width: 0;
+  }
+
+  /* Compare table gets its own internal scroll */
+  main > .container table,
+  main .table {
+    font-size: .82rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 8px;
+  }
+}
+
+/* ============================================================
+   Map page mobile
+   ============================================================ */
+
+@media (max-width: 640px) {
+  #map {
+    height: calc(100vh - 240px) !important;
+    min-height: 400px !important;
+  }
+}
+
+/* ============================================================
+   Property details — mobile fixes
+   ============================================================ */
+
+@media (max-width: 900px) {
+  /* The 2-column dash (gallery + sticky card) collapses */
+  #root .dash {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Sticky card becomes normal on mobile */
+  .sticky-card {
+    position: static !important;
+    top: auto !important;
+  }
+
+  /* Gallery thumbnails scroll horizontally instead of overflowing */
+  .gallery-thumbs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+
+  .gallery-thumbs button {
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Price + fee table stays inside the card */
+  .fee-table td {
+    font-size: .85rem;
+  }
+
+  /* Action buttons stack */
+  .sticky-card .btn-block + .btn-block {
+    margin-top: 8px;
+  }
+
+  /* Timeline items don't overflow */
+  .timeline {
+    padding-left: 22px;
+  }
+
+  .timeline-item h4 {
+    font-size: .9rem;
+  }
+}
+
+/* ============================================================
+   Dashboard pages — mobile fixes
+   ============================================================ */
+
+@media (max-width: 640px) {
+  /* Header: title + buttons wrap */
+  .container .flex-between {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Action buttons full-width on mobile */
+  .container .flex-between .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Listing cards full width */
+  #listings.grid-auto {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Action row inside each card stays inside */
+  #listings .flex.gap-1 {
+    flex-wrap: wrap;
+  }
+}
+
+/* Admin dashboard sidebar collapses to horizontal scroll */
+@media (max-width: 900px) {
+  .dash {
+    grid-template-columns: 1fr !important;
+  }
+
+  .side {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px !important;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .side a {
+    white-space: nowrap;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* ============================================================
+   Homepage — small-phone polish
+   ============================================================ */
+
+@media (max-width: 380px) {
+  /* Hero card padding tightens */
+  .hero-card-inner {
+    padding: 20px 14px !important;
+  }
+
+  /* Search form fields tighter */
+  .search-premium {
+    padding: 8px !important;
+  }
+
+  .search-premium .field {
+    padding: 8px 10px !important;
+  }
+
+  /* Hero metrics stacked */
+  .hero-metrics {
+    gap: 12px !important;
+  }
+
+  /* CTA button full width */
+  .cta-premium .btn {
+    width: 100%;
+  }
+
+  /* Testimonial dots tighter */
+  .testimonial-dots {
+    gap: 8px !important;
+  }
+}
+
+/* Auth pages — form never overflows */
+@media (max-width: 480px) {
+  #main form.card {
+    padding: 20px 16px !important;
+  }
+
+  #main .section-head h1 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ============================================================
+   Fix: Compare button visibility on the dark homepage
+   ============================================================ */
+
+.home .property-card .card-actions .btn-ghost {
+  background: rgba(148, 163, 184, 0.15) !important;
+  border-color: rgba(148, 163, 184, 0.4) !important;
+  color: #e2e8f0 !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.home .property-card .card-actions .btn-ghost:hover {
+  background: rgba(96, 165, 250, 0.25) !important;
+  border-color: rgba(96, 165, 250, 0.8) !important;
+  color: #ffffff !important;
+}
+
+/* When added, make it look distinct (e.g., green accent) */
+.home .property-card .card-actions .btn-ghost.added {
+  background: rgba(34, 197, 94, 0.2) !important;
+  border-color: rgba(34, 197, 94, 0.6) !important;
+  color: #4ade80 !important;
+}
