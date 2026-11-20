@@ -29,6 +29,44 @@
     <div id="root">
       <div class="skeleton" style="height:400px;border-radius:20px;"></div>
     </div>
+
+        <!-- Price History -->
+    <section class="section-sm" id="priceHistorySection" style="display:none;">
+      <div class="divider-label">Price history</div>
+      <div class="card" style="padding:22px;">
+        <div id="priceHistoryList"></div>
+      </div>
+    </section>
+<!-- Property Condition Checklist -->
+    <section class="section-sm" id="conditionSection" style="display:none;">
+      <div class="divider-label">Renter condition reports</div>
+      <div class="grid grid-2" style="gap:24px;">
+        <div>
+          <h3 style="margin:0 0 12px;font-size:1.1rem;">What renters found</h3>
+          <div id="conditionSummary"></div>
+        </div>
+        <div class="card" style="padding:22px;">
+          <h3 style="margin:0 0 8px;font-size:1.05rem;">Report condition</h3>
+          <p class="text-muted" style="font-size:.85rem;margin:0 0 16px;">Help other renters by sharing what you found during inspection.</p>
+          <form id="conditionForm">
+            <div id="checklistInputs"></div>
+            <div class="form-group" style="margin-top:14px;">
+              <label for="condRating">Overall rating (1–5)</label>
+              <input id="condRating" name="overallRating" type="number" min="1" max="5" />
+            </div>
+            <div class="form-group">
+              <label for="condVisited">Date you visited</label>
+              <input id="condVisited" name="visitedAt" type="date" />
+            </div>
+            <div class="form-group">
+              <label for="condNotes">Notes (optional)</label>
+              <textarea id="condNotes" name="notes" maxlength="800"></textarea>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Submit report</button>
+          </form>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Enquiry modal -->
@@ -157,6 +195,13 @@
                 </div>` : ''}
               <h1 style="margin-top:8px;">${escapeHtml(p.title)}</h1>
               <div class="text-muted mb-3">${escapeHtml(p.area)}, ${escapeHtml(p.state)}${p.address ? ' · ' + escapeHtml(p.address) : ''}</div>
+              ${p.lister ? `
+                <div class="flex items-center gap-2 mb-3" style="flex-wrap:wrap;">
+                  <a href="/pages/lister-profile?id=${p.lister._id}" class="btn btn-ghost btn-sm">
+                    👤 View lister profile
+                  </a>
+                  <span class="helper" style="margin:0;">Member since ${new Date(p.createdAt || Date.now()).toLocaleDateString('en-NG', { month:'short', year:'numeric' })}</span>
+                </div>` : ''}
 
               <div class="row gap-3 mb-3" style="flex-wrap:wrap;color:var(--ink-700);font-weight:600;">
                 <span class="pill">🛏 ${p.bedrooms} bed</span>
@@ -199,6 +244,15 @@
                 <tr class="total"><td>Total move-in</td><td>${naira(p.totalMoveInCost)}</td></tr>
               </table>
               <p class="helper mt-2">Sample/demo pricing. Not a real quote.</p>
+
+              ${p.conditionScore > 0 ? `
+                <div class="mt-3" style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--ink-50);border-radius:10px;">
+                  <span style="font-size:1.2rem;">🏚️</span>
+                  <div>
+                    <div style="font-weight:600;font-size:.9rem;">Condition score ${p.conditionScore.toFixed(1)} / 5</div>
+                    <div class="helper" style="margin:0;">From ${p.conditionReports?.length || 0} renter report${(p.conditionReports?.length || 0) === 1 ? '' : 's'}</div>
+                  </div>
+                </div>` : ''}
 
               <button class="btn btn-primary btn-block mt-3" id="enqBtn">Send enquiry</button>
               <button class="btn btn-ghost btn-block mt-2" id="repBtn">Report listing</button>
@@ -258,8 +312,39 @@
       } catch (err) { toast(err.message, 'error'); }
     });
   </script>
-  <script src="/js/forms.js"></script>
+  <script src="/js/forms.js">
+    // ---- Price history ----
+    if (property && Array.isArray(property.priceHistory) && property.priceHistory.length) {
+      const section = document.getElementById('priceHistorySection');
+      const list = document.getElementById('priceHistoryList');
+      if (section && list) {
+        section.style.display = 'block';
+        const sorted = [...property.priceHistory].sort((a, b) => new Date(a.at) - new Date(b.at));
+        list.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${sorted.map((h, i) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;${i ? 'border-top:1px solid var(--ink-100);' : ''}">
+                <div>
+                  <div style="font-weight:600;">${naira(h.annualRent)}<span style="color:var(--ink-500);font-weight:400;font-size:.85rem;"> / year</span></div>
+                  <div style="font-size:.8rem;color:var(--ink-500);">${new Date(h.at).toLocaleDateString()} · ${escapeHtml(h.reason || 'Updated')}</div>
+                </div>
+                <div style="font-weight:600;color:var(--accent-600);">${naira(h.totalMoveInCost)}</div>
+              </div>
+            `).join('')}
+          </div>
+          <p class="helper mt-2">Total move-in shown per update. Sample/demo prices.</p>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 

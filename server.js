@@ -30,6 +30,9 @@ app.use('/api/properties', require('./routes/properties'));
 app.use('/api/enquiries', require('./routes/enquiries'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/search', require('./routes/search'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/properties/:id/conditions', require('./routes/conditions'));
 
 app.get('/pages/:page', (req, res, next) => {
   const file = path.join(__dirname, 'public', 'pages', `${req.params.page}.html`);
@@ -52,3 +55,6 @@ app.use(errorHandler);
 })();
 
 module.exports = app;
+
+
+

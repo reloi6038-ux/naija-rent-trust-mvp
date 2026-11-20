@@ -25,12 +25,15 @@
   </header>
 
   <main id="main" class="container section">
-    <div class="flex-between mb-3">
+    <div class="flex-between mb-3" style="flex-wrap:wrap;gap:10px;">
       <div>
         <div class="eyebrow">Your workspace</div>
         <h1 style="margin:0;">Dashboard</h1>
       </div>
-      <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+      <div class="flex gap-2" style="flex-wrap:wrap;">
+        <a href="/pages/lister-profile?id=me" class="btn btn-ghost" id="myProfileLink">View my public profile</a>
+        <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+      </div>
     </div>
 
     <div class="stats-grid mb-4" id="stats"></div>
@@ -58,6 +61,15 @@
   <script src="/js/ui.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Resolve "my profile" link
+    (async () => {
+      try {
+        const me = await API.get('/auth/me');
+        const link = document.getElementById('myProfileLink');
+        if (link && me.user) link.href = `/pages/lister-profile?id=${me.user.id}`;
+      } catch {}
+    })();
 
     const STATUS = {
       Published: { label: 'Published', cls: 'badge-published' },
@@ -116,6 +128,28 @@
           statusPill.className = 'badge-status right';
           statusPill.innerHTML = `<span class="pill ${statusMeta.cls}">${statusMeta.label}</span>`;
           card.querySelector('.card-img').appendChild(statusPill);
+
+          // Reviewed-on badge
+          if (p.reviewedAt) {
+            const reviewed = document.createElement('div');
+            reviewed.className = 'helper';
+            reviewed.style.color = 'var(--accent-600)';
+            reviewed.style.marginTop = '6px';
+            reviewed.innerHTML = `✅ Reviewed on ${new Date(p.reviewedAt).toLocaleDateString('en-NG')}`;
+            body.appendChild(reviewed);
+          }
+
+          // Public page link
+          if (p.status === 'Published') {
+            const pubLink = document.createElement('a');
+            pubLink.href = `/pages/property-details?id=${p._id}`;
+            pubLink.target = '_blank';
+            pubLink.className = 'helper';
+            pubLink.style.display = 'inline-block';
+            pubLink.style.marginTop = '6px';
+            pubLink.textContent = '↗ View public page';
+            body.appendChild(pubLink);
+          }
 
           // Admin note / rejection reason
           if (p.adminNote && (p.status === 'Rejected' || p.status === 'Unpublished')) {
@@ -182,4 +216,7 @@
   </script>
 </body>
 </html>
+
+
+
 

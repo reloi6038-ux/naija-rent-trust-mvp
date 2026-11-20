@@ -84,7 +84,7 @@
       <section>
         <div class="flex-between mb-3">
           <div class="flex gap-2 items-center">
-            <button class="btn btn-ghost btn-sm" id="openDrawer" aria-label="Open filters" style="display:none;">Filters</button>
+            <a class="btn btn-ghost btn-sm" href="/pages/map" style="margin-right:6px;">Map view</a><button class="btn btn-ghost btn-sm" id="openDrawer" aria-label="Open filters" style="display:none;">Filters</button>
             <div id="resultCount" class="pill" aria-live="polite">Loading…</div>
           </div>
           <div class="row">
@@ -156,7 +156,7 @@
       for (let i = 0; i < 6; i++) results.appendChild(Components.skeletonCard());
       try {
         const q = buildQuery();
-        const { data, pagination } = await API.get('/properties?' + q.toString());
+        const { data, pagination } = await API.get('/search/advanced?' + q.toString());
         results.innerHTML = '';
         count.textContent = `${pagination.total} listing${pagination.total === 1 ? '' : 's'} found`;
         if (!data.length) {
@@ -244,5 +244,11 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
 
 

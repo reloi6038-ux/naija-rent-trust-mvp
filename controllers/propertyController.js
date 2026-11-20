@@ -62,7 +62,7 @@ exports.create = async (req, res, next) => {
 
 exports.listPublished = async (req, res, next) => {
   try {
-    const { state, area, propertyType, minRent, maxRent, bedrooms, bathrooms, reviewedOnly, keyword, sort, page = 1, limit = 12 } = req.query;
+    const { state, area, propertyType, minRent, maxRent, bedrooms, bathrooms, reviewedOnly, keyword, sort, page = 1, limit = 12, neLat, neLng, swLat, swLng } = req.query;
     const q = { status: 'Published' };
     if (state) q.state = new RegExp(`^${state}$`, 'i');
     if (area) q.area = new RegExp(`^${area}$`, 'i');
@@ -81,6 +81,14 @@ exports.listPublished = async (req, res, next) => {
         { description: new RegExp(keyword, 'i') },
         { area: new RegExp(keyword, 'i') }
       ];
+    }
+    // Map bounds filter
+    if (neLat && neLng && swLat && swLng) {
+      q.coordinates = {
+        $geoWithin: {
+          $box: [[Number(swLng), Number(swLat)], [Number(neLng), Number(neLat)]]
+        }
+      };
     }
     const sorts = { newest: { createdAt: -1 }, price_asc: { annualRent: 1 }, price_desc: { annualRent: -1 } };
     const skip = (Number(page) - 1) * Number(limit);
@@ -120,17 +128,71 @@ exports.updateOwn = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'You can only edit your own listings' });
     }
     const b = req.body;
+    const priceChanged =
+      (b.annualRent !== undefined && Number(b.annualRent) !== p.annualRent) ||
+      (b.agencyFee !== undefined && Number(b.agencyFee) !== p.agencyFee) ||
+      (b.legalFee !== undefined && Number(b.legalFee) !== p.legalFee) ||
+      (b.cautionDeposit !== undefined && Number(b.cautionDeposit) !== p.cautionDeposit);
+
     const fields = ['title', 'propertyType', 'state', 'area', 'address', 'description', 'bedrooms', 'bathrooms', 'annualRent', 'agencyFee', 'legalFee', 'cautionDeposit', 'listerType'];
     fields.forEach(f => { if (b[f] !== undefined) p[f] = b[f]; });
     if (b.amenities) p.amenities = Array.isArray(b.amenities) ? b.amenities : b.amenities.split(',').map(s => s.trim()).filter(Boolean);
     p.totalMoveInCost = calcTotalMoveIn(p);
+
+    if (priceChanged) {
+      p.appendPriceChange({ changedBy: req.user._id, changedByRole: 'lister', reason: 'Price updated by lister' });
+      p.appendReview({ action: 'price_changed', by: req.user._id, byRole: 'lister', note: `Price updated to ${p.annualRent}` });
+    } else {
+      p.appendReview({ action: 'updated', by: req.user._id, byRole: 'lister', note: 'Listing updated' });
+    }
+
     if (req.files && req.files.length) {
       const { urls, primaryHash } = await processImages(req.files);
       p.photos = urls;
       p.photoHash = primaryHash;
     }
-    p.appendReview({ action: 'updated', by: req.user._id, byRole: 'lister', note: 'Listing updated' });
     await p.save();
+    res.json({ success: true, property: p });
+  } catch (e) { next(e); }
+};
+
+exports.updatePrice = async (req, res, next) => {
+  try {
+    const { annualRent, agencyFee, legalFee, cautionDeposit, reason } = req.body;
+    const p = await Property.findById(req.params.id);
+    if (!p) return res.status(404).json({ success: false, message: 'Listing not found' });
+    if (String(p.lister) !== String(req.user._id) && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+
+    const before = { annualRent: p.annualRent, agencyFee: p.agencyFee, legalFee: p.legalFee, cautionDeposit: p.cautionDeposit };
+
+    if (annualRent !== undefined) p.annualRent = Number(annualRent);
+    if (agencyFee !== undefined) p.agencyFee = Number(agencyFee);
+    if (legalFee !== undefined) p.legalFee = Number(legalFee);
+    if (cautionDeposit !== undefined) p.cautionDeposit = Number(cautionDeposit);
+    p.totalMoveInCost = calcTotalMoveIn(p);
+
+    const changed = before.annualRent !== p.annualRent ||
+                    before.agencyFee !== p.agencyFee ||
+                    before.legalFee !== p.legalFee ||
+                    before.cautionDeposit !== p.cautionDeposit;
+
+    if (changed) {
+      p.appendPriceChange({
+        changedBy: req.user._id,
+        changedByRole: req.user.role === 'admin' ? 'admin' : 'lister',
+        reason: reason || 'Price updated'
+      });
+      p.appendReview({
+        action: 'price_changed',
+        by: req.user._id,
+        byRole: req.user.role === 'admin' ? 'admin' : 'lister',
+        note: reason || `Price updated to ${p.annualRent}`
+      });
+      await p.save();
+    }
+
     res.json({ success: true, property: p });
   } catch (e) { next(e); }
 };
@@ -147,7 +209,6 @@ exports.markRented = async (req, res, next) => {
   } catch (e) { next(e); }
 };
 
-// Admin actions
 exports.adminApprove = async (req, res, next) => {
   try {
     const p = await Property.findById(req.params.id).populate('lister', 'name email');
@@ -190,3 +251,4 @@ exports.adminRestore = async (req, res, next) => {
     res.json({ success: true, property: p });
   } catch (e) { next(e); }
 };
+

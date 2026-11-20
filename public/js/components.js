@@ -33,8 +33,27 @@ const Components = {
           <span>🏠 ${escapeHtml(p.propertyType)}</span>
         </div>
         <div class="card-price">${naira(p.annualRent)}<small>/ year</small></div>
+        <div style="display:flex;gap:6px;margin-top:8px;" class="card-actions">
+          <button class="btn btn-ghost btn-sm" data-compare="${p._id}" style="flex:1;font-size:.78rem;">＋ Compare</button>
+        </div>
       </div>
     `;
+
+    // Wire compare button
+    const compareBtn = el.querySelector('[data-compare]');
+    if (compareBtn && typeof Compare !== 'undefined') {
+      const updateLabel = () => {
+        compareBtn.textContent = Compare.has(p._id) ? '✓ Added' : '＋ Compare';
+      };
+      updateLabel();
+      compareBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        Compare.toggle(p);
+        updateLabel();
+      });
+      window.addEventListener('compare:updated', updateLabel);
+    }
+
     return el;
   },
 
@@ -154,4 +173,5 @@ function toast(msg, type = 'info') {
     bar.remove();
   });
 })();
+
 
