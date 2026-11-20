@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Listing — Naija Rent & Trust</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/favicon-180.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em> & Trust</a>
+      <div class="nav-actions" id="navActions"></div>
+    </div>
+  </header>
+  <main id="main" class="container section" style="max-width:820px;">
+    <div class="section-head">
+      <div class="eyebrow">New</div>
+      <h1>Create a listing</h1>
+      <p class="section-sub">Publish a property for renters to discover.</p>
+    </div>
+
+    <form id="form" class="card" style="padding:30px;" enctype="multipart/form-data" novalidate>
+      <div class="divider-label">Basic information</div>
+      <div class="form-group"><label for="title">Title</label><input id="title" name="title" required maxlength="140" /></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="propertyType">Property type</label>
+          <select id="propertyType" name="propertyType" required>
+            <option value="">Choose…</option>
+            <option>Self Contain</option><option>Mini Flat</option><option>Flat</option>
+            <option>Duplex</option><option>Detached House</option><option>Terraced House</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="listerType">I am a…</label>
+          <select id="listerType" name="listerType">
+            <option value="agent">Agent</option><option value="landlord">Landlord</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider-label">Location</div>
+      <div class="form-row">
+        <div class="form-group"><label for="state">State</label><input id="state" name="state" required /></div>
+        <div class="form-group"><label for="area">Area</label><input id="area" name="area" required /></div>
+      </div>
+      <div class="form-group"><label for="address">Address / landmark</label><input id="address" name="address" /></div>
+
+      <div class="divider-label">Property details</div>
+      <div class="form-row">
+        <div class="form-group"><label for="bedrooms">Bedrooms</label><input id="bedrooms" name="bedrooms" type="number" min="0" required /></div>
+        <div class="form-group"><label for="bathrooms">Bathrooms</label><input id="bathrooms" name="bathrooms" type="number" min="0" required /></div>
+      </div>
+
+      <div class="divider-label">Pricing & fees</div>
+      <div class="form-row">
+        <div class="form-group"><label for="annualRent">Annual rent (₦)</label><input id="annualRent" name="annualRent" type="number" min="0" required /></div>
+        <div class="form-group"><label for="agencyFee">Agency fee (₦)</label><input id="agencyFee" name="agencyFee" type="number" min="0" value="0" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="legalFee">Legal fee (₦)</label><input id="legalFee" name="legalFee" type="number" min="0" value="0" /></div>
+        <div class="form-group"><label for="cautionDeposit">Caution deposit (₦)</label><input id="cautionDeposit" name="cautionDeposit" type="number" min="0" value="0" /></div>
+      </div>
+      <div class="pill pill-brand" id="totalPreview">Estimated total move-in: ₦0</div>
+
+      <div class="divider-label">Description</div>
+      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" required></textarea></div>
+      <div class="form-group"><label for="amenities">Amenities (comma separated)</label><input id="amenities" name="amenities" placeholder="Water, Security, Parking" /></div>
+
+      <div class="divider-label">Photos</div>
+      <div class="dropzone" id="dropzone">
+        <p><strong>Click to upload</strong> or drag and drop</p>
+        <p class="helper">Up to 5 images · JPG/PNG/WEBP · max 1MB each</p>
+      </div>
+      <input id="photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required class="sr-only" />
+      <div class="preview-grid" id="previewGrid"></div>
+
+      <button class="btn btn-primary btn-block mt-4" type="submit">Publish listing</button>
+    </form>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script src="/js/forms.js"></script>
+  <script>
+    const form = document.getElementById('form');
+    Forms.setupFeeCalculator(form, document.getElementById('totalPreview'));
+    Forms.setupDropzone({
+      input: document.getElementById('photos'),
+      dropzone: document.getElementById('dropzone'),
+      previewGrid: document.getElementById('previewGrid'),
+      maxFiles: 5,
+      maxSizeMB: 1
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!Forms.validate(form)) return;
+      const fd = new FormData(form);
+      try {
+        await API.upload('/properties', fd, 'POST');
+        toast('Listing submitted for review', 'success');
+        setTimeout(() => window.location.href = '/pages/pending-review', 700);
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  </script>
+</body>
+</html>
+
+
+
+

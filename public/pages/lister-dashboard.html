@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lister Dashboard — NaijaRent</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <img src="/images/logo-mark.svg" alt="" width="32" height="32" />
+        Naija<em>Rent</em>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/lister-dashboard" class="active">Dashboard</a>
+        <a href="/pages/enquiries">Enquiries</a>
+        <a href="/pages/properties">Browse</a>
+      </nav>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main id="main" class="container section">
+    <div class="flex-between mb-3">
+      <div>
+        <div class="eyebrow">Your workspace</div>
+        <h1 style="margin:0;">Dashboard</h1>
+      </div>
+      <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+    </div>
+
+    <div class="stats-grid mb-4" id="stats"></div>
+
+    <div class="section-head">
+      <h2>My listings</h2>
+      <p class="section-sub">Manage listings, review statuses, and enquiries.</p>
+    </div>
+    <div id="listings" class="grid grid-auto"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        © <span id="year"></span> NaijaRent ·
+        <a href="/pages/terms">Terms</a> ·
+        <a href="/pages/privacy">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const STATUS = {
+      Published: { label: 'Published', cls: 'badge-published' },
+      Pending: { label: 'Pending review', cls: 'badge-new' },
+      Rejected: { label: 'Rejected', cls: 'badge-unpublished' },
+      Rented: { label: 'Rented', cls: 'badge-rented' },
+      Unpublished: { label: 'Unpublished', cls: 'badge-unpublished' }
+    };
+
+    (async () => {
+      try {
+        // Check email verification first
+        const { data } = await API.get('/properties/mine');
+
+        const counts = {
+          total: data.length,
+          published: data.filter(p => p.status === 'Published').length,
+          pending: data.filter(p => p.status === 'Pending').length,
+          rejected: data.filter(p => p.status === 'Rejected').length,
+          rented: data.filter(p => p.status === 'Rented').length
+        };
+
+        const variants = { total: '', published: 'accent', pending: '', rejected: 'danger', rented: 'warn' };
+        const labels = { total: 'Total listings', published: 'Published', pending: 'Pending review', rejected: 'Rejected', rented: 'Rented' };
+
+        const statsEl = document.getElementById('stats');
+        Object.entries(counts).forEach(([k, v]) => {
+          statsEl.appendChild(Components.statCard({ value: v, label: labels[k], variant: variants[k] }));
+        });
+
+        const el = document.getElementById('listings');
+        if (!data.length) {
+          el.innerHTML = `
+            <div style="grid-column:1/-1;">
+              <div class="empty">
+                <img src="/images/empty-listings.svg" alt="" />
+                <h3>You have no listings yet</h3>
+                <p>Create your first property listing to get started.</p>
+                <a class="btn btn-primary" href="/pages/create-listing">Create listing</a>
+              </div>
+            </div>`;
+          return;
+        }
+
+        data.forEach((p) => {
+          const card = Components.propertyCard(p, { href: `/pages/edit-listing?id=${p._id}` });
+          const body = card.querySelector('.card-body');
+
+          // Replace status pill with new mapping
+          const existingStatus = card.querySelector('.badge-status.right');
+          if (existingStatus) {
+            existingStatus.remove();
+          }
+          const statusMeta = STATUS[p.status] || { label: p.status, cls: 'pill' };
+          const statusPill = document.createElement('div');
+          statusPill.className = 'badge-status right';
+          statusPill.innerHTML = `<span class="pill ${statusMeta.cls}">${statusMeta.label}</span>`;
+          card.querySelector('.card-img').appendChild(statusPill);
+
+          // Admin note / rejection reason
+          if (p.adminNote && (p.status === 'Rejected' || p.status === 'Unpublished')) {
+            const note = document.createElement('div');
+            note.className = 'helper';
+            note.style.color = p.status === 'Rejected' ? 'var(--danger-500)' : 'var(--warn-600)';
+            note.style.marginTop = '8px';
+            note.innerHTML = `<strong>${p.status === 'Rejected' ? 'Rejection reason' : 'Admin note'}:</strong> ${escapeHtml(p.adminNote)}`;
+            body.appendChild(note);
+          }
+
+          // Review history (collapsible)
+          if (Array.isArray(p.reviewHistory) && p.reviewHistory.length) {
+            const details = document.createElement('details');
+            details.style.marginTop = '10px';
+            details.style.fontSize = '.82rem';
+            details.innerHTML = `
+              <summary style="cursor:pointer;color:var(--text-muted);font-weight:600;">Review history (${p.reviewHistory.length})</summary>
+              <div class="timeline" style="margin-top:12px;padding-left:22px;">
+                ${p.reviewHistory.slice().reverse().map(r => `
+                  <div class="timeline-item">
+                    <h4 style="font-size:.85rem;margin:0;">${escapeHtml(r.action)}</h4>
+                    <p style="margin:2px 0;font-size:.78rem;">${new Date(r.at).toLocaleString()}</p>
+                    ${r.note ? `<p style="margin:2px 0;font-size:.78rem;color:var(--text-muted);">${escapeHtml(r.note)}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            `;
+            body.appendChild(details);
+          }
+
+          // Actions
+          const actions = document.createElement('div');
+          actions.className = 'flex gap-1 mt-2';
+          actions.innerHTML = `
+            <a class="btn btn-ghost btn-sm" href="/pages/edit-listing?id=${p._id}">Edit</a>
+            ${p.status === 'Published' ? `<button class="btn btn-primary btn-sm" data-rented="${p._id}">Mark rented</button>` : ''}
+            ${p.status === 'Rejected' ? `<a class="btn btn-ghost btn-sm" href="/pages/edit-listing?id=${p._id}">Fix & resubmit</a>` : ''}
+          `;
+          body.appendChild(actions);
+          el.appendChild(card);
+        });
+
+        el.querySelectorAll('[data-rented]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const ok = await Components.confirm({
+              title: 'Mark as rented?',
+              message: 'This listing will be hidden from public search.',
+              confirmText: 'Mark rented'
+            });
+            if (!ok) return;
+            try {
+              await API.post('/properties/' + btn.dataset.rented + '/rented', {});
+              toast('Marked as rented', 'success');
+              setTimeout(() => location.reload(), 600);
+            } catch (err) { toast(err.message, 'error'); }
+          });
+        });
+      } catch (e) {
+        toast(e.message, 'error');
+        window.location.href = '/pages/login';
+      }
+    })();
+  </script>
+</body>
+</html>
+

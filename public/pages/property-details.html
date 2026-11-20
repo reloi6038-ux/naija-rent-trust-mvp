@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Property Details — Naija Rent & Trust</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/favicon-180.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em> & Trust</a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/properties">Browse Rentals</a>
+        <a href="/pages/about">About</a>
+        <a href="/pages/contact">Contact</a>
+      </nav>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main id="main" class="container section">
+    <div id="root">
+      <div class="skeleton" style="height:400px;border-radius:20px;"></div>
+    </div>
+  </main>
+
+  <!-- Enquiry modal -->
+  <div class="modal-backdrop" id="enquiryModal" role="dialog" aria-modal="true" aria-labelledby="enqTitle">
+    <div class="modal">
+      <h3 id="enqTitle">Send an enquiry</h3>
+      <p class="modal-sub">Your message will be sent directly to the lister.</p>
+      <form id="enquiryForm">
+        <div class="form-group"><label for="enqName">Your name</label><input id="enqName" name="renterName" required /></div>
+        <div class="form-row">
+          <div class="form-group"><label for="enqPhone">Phone</label><input id="enqPhone" name="renterPhone" required /></div>
+          <div class="form-group"><label for="enqEmail">Email</label><input id="enqEmail" name="renterEmail" type="email" required /></div>
+        </div>
+        <div class="form-group"><label for="enqDate">Preferred inspection date</label><input id="enqDate" name="preferredInspectionDate" type="date" /></div>
+        <div class="form-group"><label for="enqMsg">Message</label><textarea id="enqMsg" name="message" placeholder="Hi, I'd like to schedule a viewing…"></textarea></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+          <button class="btn btn-primary" type="submit">Send enquiry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Report modal -->
+  <div class="modal-backdrop" id="reportModal" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+    <div class="modal">
+      <h3 id="repTitle">Report this listing</h3>
+      <p class="modal-sub">Help us keep listings honest. Reports are anonymous.</p>
+      <form id="reportForm">
+        <div class="form-group">
+          <label for="repReason">Reason</label>
+          <select id="repReason" name="reason" required>
+            <option value="">Choose…</option>
+            <option>Fake listing</option><option>Wrong price</option>
+            <option>Already rented</option><option>Suspicious agent</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label for="repComment">Comments (optional)</label><textarea id="repComment" name="comment"></textarea></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+          <button class="btn btn-danger" type="submit">Submit report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> Naija Rent & Trust MVP · Reviewed by NaijaRent</div></div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const id = new URLSearchParams(location.search).get('id');
+    const root = document.getElementById('root');
+    let property = null;
+
+    function openModal(id) {
+      const m = document.getElementById(id);
+      m.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      m.querySelector('input,select,textarea')?.focus();
+    }
+    function closeModal(m) {
+      m.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.modal-backdrop').forEach((m) => {
+      m.addEventListener('click', (e) => {
+        if (e.target === m || e.target.matches('[data-close]')) closeModal(m);
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(closeModal);
+    });
+
+    (async () => {
+      if (!id) { root.innerHTML = '<div class="empty"><p>Missing listing id.</p></div>'; return; }
+      try {
+        const { property: p } = await API.get('/properties/' + id);
+        property = p;
+        render(p);
+      } catch (e) {
+        root.innerHTML = `
+          <div class="empty">
+            <img src="/images/empty-search.svg" alt="" />
+            <h3>Listing unavailable</h3>
+            <p>${escapeHtml(e.message)}</p>
+            <a class="btn btn-ghost" href="/pages/properties">Back to listings</a>
+          </div>`;
+      }
+    })();
+
+    function render(p) {
+      const photos = p.photos.length ? p.photos : ['/images/placeholder.svg'];
+      const verified = p.verification?.isVerified;
+      const checklist = p.verification?.checklist || [];
+
+      root.innerHTML = `
+        <nav aria-label="Breadcrumb" class="mb-2">
+          <a href="/pages/properties" style="color:var(--text-muted);font-size:.88rem;">← Back to listings</a>
+        </nav>
+
+        <div class="dash" style="grid-template-columns:minmax(0,1fr) 380px;">
+          <div>
+            <div class="gallery" id="gallery">
+              <img id="heroImg" src="${photos[0]}" alt="${escapeHtml(p.title)}" />
+            </div>
+            <div class="gallery-thumbs" id="thumbs" aria-label="Photo thumbnails">
+              ${photos.map((ph, i) => `
+                <button class="${i === 0 ? 'active' : ''}" data-src="${ph}" aria-label="Photo ${i + 1}">
+                  <img src="${ph}" alt="" loading="lazy" />
+                </button>`).join('')}
+            </div>
+
+            <div class="mt-3">
+              ${verified ? `
+                <div class="disclaimer mb-3">
+                  <div>
+                    <strong>Reviewed by NaijaRent.</strong>
+                    This listing is marked as verified for demonstration purposes only. It has not been independently verified.
+                  </div>
+                </div>` : ''}
+              <h1 style="margin-top:8px;">${escapeHtml(p.title)}</h1>
+              <div class="text-muted mb-3">${escapeHtml(p.area)}, ${escapeHtml(p.state)}${p.address ? ' · ' + escapeHtml(p.address) : ''}</div>
+
+              <div class="row gap-3 mb-3" style="flex-wrap:wrap;color:var(--ink-700);font-weight:600;">
+                <span class="pill">🛏 ${p.bedrooms} bed</span>
+                <span class="pill">🚿 ${p.bathrooms} bath</span>
+                <span class="pill">🏠 ${escapeHtml(p.propertyType)}</span>
+              </div>
+
+              <h2 style="font-size:1.2rem;">Description</h2>
+              <p style="white-space:pre-line;">${escapeHtml(p.description)}</p>
+
+              ${p.amenities?.length ? `
+                <h2 class="mt-3" style="font-size:1.2rem;">Amenities</h2>
+                <div class="flex gap-1 flex-wrap mb-3">
+                  ${p.amenities.map((a) => `<span class="pill">${escapeHtml(a)}</span>`).join('')}
+                </div>` : ''}
+
+              ${verified ? `
+                <h2 class="mt-4" style="font-size:1.2rem;">manual review checklist</h2>
+                <div class="timeline">
+                  ${checklist.map((c) => `
+                    <div class="timeline-item">
+                      <h4>${c.done ? '✅' : '⬜'} ${escapeHtml(c.label)}</h4>
+                      <p>reviewed step — no real verification performed.</p>
+                    </div>`).join('')}
+                </div>` : ''}
+            </div>
+          </div>
+
+          <aside>
+            <div class="sticky-card">
+              <div class="text-muted" style="font-size:.85rem;">Annual Rent</div>
+              <div style="font-size:2rem;font-weight:800;color:var(--brand-500);letter-spacing:-.02em;">${naira(p.annualRent)}</div>
+
+              <hr class="mt-2 mb-2" />
+
+              <table class="fee-table" aria-label="Fee breakdown">
+                <tr><td>Agency fee</td><td>${naira(p.agencyFee)}</td></tr>
+                <tr><td>Legal fee</td><td>${naira(p.legalFee)}</td></tr>
+                <tr><td>Caution deposit</td><td>${naira(p.cautionDeposit)}</td></tr>
+                <tr class="total"><td>Total move-in</td><td>${naira(p.totalMoveInCost)}</td></tr>
+              </table>
+              <p class="helper mt-2">Sample/demo pricing. Not a real quote.</p>
+
+              <button class="btn btn-primary btn-block mt-3" id="enqBtn">Send enquiry</button>
+              <button class="btn btn-ghost btn-block mt-2" id="repBtn">Report listing</button>
+            </div>
+
+            <div class="disclaimer mt-3">
+              <div>
+                <strong>Safety notice.</strong>
+                Never send money before an in-person inspection. This MVP does not process payments.
+              </div>
+            </div>
+          </aside>
+        </div>
+      `;
+
+      // Gallery thumbnails
+      const heroImg = document.getElementById('heroImg');
+      document.querySelectorAll('#thumbs button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          heroImg.style.opacity = '0.3';
+          heroImg.src = btn.dataset.src;
+          heroImg.onload = () => { heroImg.style.opacity = '1'; };
+          document.querySelectorAll('#thumbs button').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+        });
+      });
+
+      document.getElementById('enqBtn').addEventListener('click', () => openModal('enquiryModal'));
+      document.getElementById('repBtn').addEventListener('click', () => openModal('reportModal'));
+    }
+
+    // Enquiry submit
+    document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!Forms.validate(e.target)) return;
+      const body = Object.fromEntries(new FormData(e.target));
+      body.propertyId = id;
+      try {
+        await API.post('/enquiries', body);
+        closeModal(document.getElementById('enquiryModal'));
+        e.target.reset();
+        toast('Enquiry sent successfully', 'success');
+      } catch (err) { toast(err.message, 'error'); }
+    });
+
+    // Report submit
+    document.getElementById('reportForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!Forms.validate(e.target)) return;
+      const body = Object.fromEntries(new FormData(e.target));
+      body.propertyId = id;
+      try {
+        await API.post('/reports', body);
+        closeModal(document.getElementById('reportModal'));
+        e.target.reset();
+        toast('Report submitted. Thank you.', 'success');
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  </script>
+  <script src="/js/forms.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Review Queue — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav"><div class="container nav-inner">
+    <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+    <div class="nav-actions" id="navActions"></div>
+  </div></header>
+  <main class="container section">
+    <div class="dash">
+      <aside class="side">
+        <a href="/pages/admin-dashboard">Dashboard</a>
+        <a href="/pages/admin-review" class="active">Review queue</a>
+        <a href="/pages/reports">Reports</a>
+      </aside>
+      <div>
+        <div class="section-head">
+          <div class="eyebrow">Admin</div>
+          <h1>Listing review queue</h1>
+          <p class="section-sub">Approve or reject submitted listings.</p>
+        </div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/api.js"></script><script src="/js/components.js"></script><script src="/js/animations.js"></script><script src="/js/ui.js"></script>
+  <script>
+    async function load() {
+      try {
+        const { data } = await API.get('/admin/properties/pending');
+        const el = document.getElementById('list');
+        if (!data.length) {
+          el.innerHTML = `<div class="empty"><img src="/images/empty-reports.svg" alt="" /><h3>No pending listings</h3><p>New submissions will appear here.</p></div>`;
+          return;
+        }
+        el.innerHTML = data.map((p) => `
+          <div class="card mb-3" style="padding:20px;">
+            <div class="flex-between" style="align-items:flex-start;gap:16px;">
+              <div>
+                <h3 style="margin:0;">${escapeHtml(p.title)}</h3>
+                <div class="text-muted">${escapeHtml(p.area)}, ${escapeHtml(p.state)} · ${naira(p.annualRent)}</div>
+                <div class="text-muted" style="font-size:.85rem;margin-top:4px;">Lister: ${escapeHtml(p.lister?.name || '')} · ${escapeHtml(p.lister?.email || '')} · ${escapeHtml(p.lister?.phone || '')}</div>
+              </div>
+              <a class="btn btn-ghost btn-sm" href="/pages/property-details?id=${p._id}" target="_blank">Preview</a>
+            </div>
+            <p class="mt-2">${escapeHtml((p.description || '').slice(0, 240))}…</p>
+            <div class="flex gap-1 mt-2">
+              <button class="btn btn-primary btn-sm" data-approve="${p._id}">Approve & publish</button>
+              <button class="btn btn-danger btn-sm" data-reject="${p._id}">Reject</button>
+            </div>
+          </div>
+        `).join('');
+
+        el.querySelectorAll('[data-approve]').forEach((b) => b.onclick = async () => {
+          const ok = await Components.confirm({ title: 'Approve listing?', message: 'It will become publicly visible.', confirmText: 'Approve' });
+          if (!ok) return;
+          await API.patch('/admin/properties/' + b.dataset.approve + '/approve', {});
+          toast('Approved', 'success'); load();
+        });
+        el.querySelectorAll('[data-reject]').forEach((b) => b.onclick = async () => {
+          const reason = prompt('Reason for rejection (sent to lister):');
+          if (!reason) return;
+          await API.patch('/admin/properties/' + b.dataset.reject + '/reject', { reason });
+          toast('Rejected', 'success'); load();
+        });
+      } catch (e) { toast(e.message, 'error'); window.location.href = '/pages/admin-login'; }
+    }
+    load();
+  </script>
+</body>
+</html>
+

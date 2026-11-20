@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>manual review — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/favicon-180.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em> & Trust</a>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+  <main id="main" class="container section">
+    <div class="dash">
+      <aside class="side">
+        <a href="/pages/admin-dashboard">Dashboard</a>
+        <a href="/pages/reports">Reports</a>
+        <a href="/pages/verification" class="active">Verification</a>
+      </aside>
+      <div>
+        <div class="section-head">
+          <div class="eyebrow">Admin</div>
+          <h1>manual review</h1>
+        </div>
+        <div class="disclaimer mb-3">
+          <div><strong>Reviewed by NaijaRent.</strong> Toggling these flags does not verify any listing in the real world.</div>
+        </div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    async function load() {
+      try {
+        const { data } = await API.get('/admin/properties');
+        const el = document.getElementById('list');
+        el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Title</th><th>Location</th><th>Status</th><th>Reviewed</th><th>Action</th></tr></thead><tbody>
+          ${data.map((p) => `
+            <tr>
+              <td>${escapeHtml(p.title)}</td>
+              <td>${escapeHtml(p.area)}, ${escapeHtml(p.state)}</td>
+              <td><span class="pill badge-${p.status.toLowerCase()}">${p.status}</span></td>
+              <td>${p.verification?.isVerified ? '<span class="badge badge-verified">reviewed</span>' : '<span class="text-muted">—</span>'}</td>
+              <td>
+                <button class="btn btn-sm ${p.verification?.isVerified ? 'btn-ghost' : 'btn-primary'}" data-toggle="${p._id}" data-verified="${!!p.verification?.isVerified}">
+                  ${p.verification?.isVerified ? 'Remove reviewed' : 'Mark Reviewed'}
+                </button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody></table></div>`;
+
+        el.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => {
+          const isVerified = b.dataset.verified === 'true';
+          const ok = await Components.confirm({
+            title: isVerified ? 'Remove manual review?' : 'Mark as Reviewed?',
+            message: 'This is a simulation only. No real verification is performed.',
+            confirmText: isVerified ? 'Remove' : 'Mark reviewed'
+          });
+          if (!ok) return;
+          await API.patch('/admin/properties/' + b.dataset.toggle + '/verify', { isVerified: !isVerified });
+          toast('Updated (reviewed)', 'success'); load();
+        });
+      } catch (e) { toast(e.message, 'error'); }
+    }
+    load();
+  </script>
+</body>
+</html>
+
+

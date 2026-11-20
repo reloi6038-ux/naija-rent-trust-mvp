@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Report Queue — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/favicon-180.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em> & Trust</a>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+  <main id="main" class="container section">
+    <div class="dash">
+      <aside class="side">
+        <a href="/pages/admin-dashboard">Dashboard</a>
+        <a href="/pages/reports" class="active">Reports</a>
+        <a href="/pages/verification">Verification</a>
+      </aside>
+      <div>
+        <div class="section-head">
+          <div class="eyebrow">Moderation</div>
+          <h1>Report queue</h1>
+          <p class="section-sub">Review reported listings and take action.</p>
+        </div>
+        <div class="row gap-1 mb-3">
+          <button class="btn btn-ghost btn-sm active" data-filter="">All</button>
+          <button class="btn btn-ghost btn-sm" data-filter="Open">Open</button>
+          <button class="btn btn-ghost btn-sm" data-filter="Reviewed">Reviewed</button>
+          <button class="btn btn-ghost btn-sm" data-filter="Dismissed">Dismissed</button>
+        </div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    let currentFilter = '';
+
+    async function load() {
+      try {
+        const q = currentFilter ? `?status=${currentFilter}` : '';
+        const { data } = await API.get('/reports' + q);
+        const el = document.getElementById('list');
+        if (!data.length) {
+          el.innerHTML = `<div class="empty"><img src="/images/empty-reports.svg" alt="" /><h3>No reports</h3><p>When renters report listings, they'll appear here.</p></div>`;
+          return;
+        }
+        el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Property</th><th>Reason</th><th>Comment</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+          ${data.map((r) => `
+            <tr>
+              <td>${r.property ? `<a href="/pages/property-details?id=${r.property._id}">${escapeHtml(r.property.title)}</a>` : '—'}</td>
+              <td>${escapeHtml(r.reason)}</td>
+              <td style="max-width:280px;">${escapeHtml(r.comment || '')}</td>
+              <td><span class="pill badge-${r.status.toLowerCase()}">${r.status}</span></td>
+              <td style="white-space:nowrap;">
+                ${r.property ? `
+                  <button class="btn btn-sm btn-ghost" data-unpub="${r.property._id}">Unpublish</button>
+                  <button class="btn btn-sm btn-ghost" data-restore="${r.property._id}">Restore</button>
+                ` : ''}
+                <button class="btn btn-sm btn-ghost" data-review="${r._id}">Review</button>
+                <button class="btn btn-sm btn-ghost" data-dismiss="${r._id}">Dismiss</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody></table></div>`;
+
+        el.querySelectorAll('[data-review]').forEach((b) => b.onclick = async () => {
+          await API.patch('/reports/' + b.dataset.review, { status: 'Reviewed' }); load();
+        });
+        el.querySelectorAll('[data-dismiss]').forEach((b) => b.onclick = async () => {
+          await API.patch('/reports/' + b.dataset.dismiss, { status: 'Dismissed' }); load();
+        });
+        el.querySelectorAll('[data-unpub]').forEach((b) => b.onclick = async () => {
+          const ok = await Components.confirm({
+            title: 'Unpublish this listing?',
+            message: 'It will be removed from public search.',
+            confirmText: 'Unpublish',
+            danger: true
+          });
+          if (!ok) return;
+          await API.patch('/admin/properties/' + b.dataset.unpub + '/unpublish', { adminNote: 'Unpublished via report review' });
+          toast('Unpublished', 'success'); load();
+        });
+        el.querySelectorAll('[data-restore]').forEach((b) => b.onclick = async () => {
+          await API.patch('/admin/properties/' + b.dataset.restore + '/restore', {});
+          toast('Restored', 'success'); load();
+        });
+      } catch (e) { toast(e.message, 'error'); }
+    }
+
+    document.querySelectorAll('[data-filter]').forEach((b) => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter]').forEach((x) => x.classList.remove('active'));
+        b.classList.add('active');
+        currentFilter = b.dataset.filter;
+        load();
+      });
+    });
+
+    load();
+  </script>
+</body>
+</html>
+
+

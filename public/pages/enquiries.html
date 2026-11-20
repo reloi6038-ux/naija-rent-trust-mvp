@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enquiries — Naija Rent & Trust</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" href="/favicon-180.png" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em> & Trust</a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/lister-dashboard">Dashboard</a>
+        <a href="/pages/enquiries" class="active">Enquiries</a>
+      </nav>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+  <main id="main" class="container section">
+    <div class="section-head">
+      <div class="eyebrow">Inbox</div>
+      <h1>Enquiries</h1>
+      <p class="section-sub">Messages from renters about your listings.</p>
+    </div>
+    <div id="list"></div>
+  </main>
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> Naija Rent & Trust MVP · Reviewed by NaijaRent</div></div>
+  </footer>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    (async () => {
+      try {
+        const { data } = await API.get('/enquiries/mine');
+        const el = document.getElementById('list');
+        if (!data.length) {
+          el.innerHTML = `<div class="empty"><img src="/images/empty-listings.svg" alt="" /><h3>No enquiries yet</h3><p>When renters contact you, their messages will appear here.</p></div>`;
+          return;
+        }
+        const byProp = data.reduce((acc, e) => {
+          const k = e.property?._id || 'removed';
+          (acc[k] = acc[k] || { title: e.property?.title || 'Removed listing', items: [] }).items.push(e);
+          return acc;
+        }, {});
+
+        el.innerHTML = Object.entries(byProp).map(([pid, group]) => `
+          <div class="card mb-3" style="padding:24px;">
+            <h3 style="margin:0 0 18px;">${escapeHtml(group.title)}</h3>
+            ${group.items.map((e) => `
+              <div style="border-top:1px solid var(--border);padding:16px 0;">
+                <div class="flex-between mb-1" style="gap:12px;flex-wrap:wrap;">
+                  <div class="row gap-2">
+                    <div class="avatar">${escapeHtml(e.renterName.split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase())}</div>
+                    <div>
+                      <div style="font-weight:700;">${escapeHtml(e.renterName)}</div>
+                      <div class="text-muted" style="font-size:.85rem;">${escapeHtml(e.renterPhone)} · ${escapeHtml(e.renterEmail)}</div>
+                    </div>
+                  </div>
+                  <span class="pill ${e.status === 'New' ? 'badge-new' : 'badge-contacted'}">${e.status}</span>
+                </div>
+                ${e.preferredInspectionDate ? `<div class="helper">Inspection preferred: ${new Date(e.preferredInspectionDate).toLocaleDateString()}</div>` : ''}
+                <p style="margin:10px 0;">${escapeHtml(e.message || '')}</p>
+                ${e.status === 'New' ? `<button class="btn btn-sm btn-primary" data-contact="${e._id}">Mark contacted</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        `).join('');
+
+        el.querySelectorAll('[data-contact]').forEach((b) => b.addEventListener('click', async () => {
+          try {
+            await API.patch('/enquiries/' + b.dataset.contact + '/contacted', {});
+            toast('Updated', 'success');
+            setTimeout(() => location.reload(), 500);
+          } catch (err) { toast(err.message, 'error'); }
+        }));
+      } catch (e) { toast(e.message, 'error'); }
+    })();
+  </script>
+</body>
+</html>
+
+
