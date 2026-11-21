@@ -10,15 +10,25 @@ const { calcTotalMoveIn } = require('../utils/format');
 const REQUIRED = ['title', 'propertyType', 'state', 'area', 'annualRent', 'bedrooms', 'bathrooms', 'description'];
 
 async function processImages(files) {
+  const cloudinary = require('../config/cloudinary');
   const urls = [];
   const hashes = [];
   for (const f of files) {
     const hash = crypto.createHash('sha256').update(f.buffer).digest('hex').slice(0, 32);
     hashes.push(hash);
-    const filename = `p_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.webp`;
-    const outPath = path.join(__dirname, '..', 'uploads', filename);
-    await sharp(f.buffer).resize({ width: 1200, withoutEnlargement: true }).webp({ quality: 78 }).toFile(outPath);
-    urls.push(`/uploads/${filename}`);
+    
+    // Upload to Cloudinary using the buffer
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: 'naijarent/properties', resource_type: 'image' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(f.buffer);
+    });
+    
+    urls.push(result.secure_url);
   }
   return { urls, primaryHash: hashes[0] };
 }
@@ -251,4 +261,5 @@ exports.adminRestore = async (req, res, next) => {
     res.json({ success: true, property: p });
   } catch (e) { next(e); }
 };
+
 
