@@ -26,11 +26,13 @@
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/properties">List view</a>
-        <a href="/pages/map" class="active">Map view</a>
-        <a href="/pages/trust">Trust & Safety</a>
+        <a href="/pages/properties" data-i18n="nav.browse">Browse rentals</a>
+        <a href="/pages/map" class="active" data-i18n="nav.map">Map view</a>
+        <a href="/pages/trust" data-i18n="nav.trust">Trust & Safety</a>
+        <a href="/pages/about" data-i18n="nav.about">About</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -42,14 +44,18 @@
           <div class="eyebrow">Discover</div>
           <h1 style="margin:0;">Map Search</h1>
         </div>
-        <a class="btn btn-ghost btn-sm" href="/pages/properties">← List view</a>
+        <a class="btn btn-ghost btn-sm" href="/pages/properties" data-i18n="nav.browse">← List view</a>
       </div>
     </div>
 
     <div id="map"></div>
-    <p class="helper mt-2">Zoom and pan the map. Listings outside the visible area are hidden. Tap a marker to see details.</p>
   </main>
 
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="/js/api.js"></script>
@@ -58,6 +64,9 @@
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
+
     const map = L.map('map').setView([6.5244, 3.3792], 11);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors', maxZoom: 18

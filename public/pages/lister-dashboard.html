@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard — NaijaRent</title>
+  <title>Lister Dashboard — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/pages.css" />
 </head>
-<body>
+<body data-i18n-title-key="meta.dashboard_title">
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/lister-dashboard" class="active">Dashboard</a>
+        <a href="/pages/lister-dashboard" class="active" data-i18n="nav.dashboard">Dashboard</a>
         <a href="/pages/enquiries">Enquiries</a>
-        <a href="/pages/properties">Browse</a>
+        <a href="/pages/properties" data-i18n="nav.browse">Browse</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -29,19 +30,19 @@
     <div class="page-header" style="background: transparent; padding: 0; margin-bottom: 24px;">
       <div class="flex-between">
         <div>
-          <div class="eyebrow">Your workspace</div>
-          <h1 style="margin:0;">Dashboard</h1>
+          <div class="eyebrow" data-i18n="dashboard.eyebrow">Your workspace</div>
+          <h1 style="margin:0;" data-i18n="dashboard.title">Dashboard</h1>
         </div>
         <div class="flex gap-2">
-          <a href="/pages/lister-profile?id=me" class="btn btn-ghost" id="myProfileLink">View my profile</a>
-          <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+          <a href="/pages/lister-profile?id=me" class="btn btn-ghost" id="myProfileLink" data-i18n="dashboard.my_profile">View my profile</a>
+          <a href="/pages/create-listing" class="btn btn-primary" data-i18n="dashboard.new_listing">+ New listing</a>
         </div>
       </div>
     </div>
 
     <div class="stats-grid mb-4" id="stats"></div>
 
-    <h2 style="font-size:1.3rem; margin-bottom:16px; color:var(--ink-900);">My listings</h2>
+    <h2 style="font-size:1.3rem; margin-bottom:16px; color:var(--ink-900);" data-i18n="dashboard.my_listings">My listings</h2>
     <div id="listings" class="grid grid-auto"></div>
   </main>
 
@@ -49,12 +50,14 @@
     <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
   </footer>
 
+  <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
 
     const STATUS = {
       Published: { label: 'Published', cls: 'badge-published' },
@@ -99,15 +102,21 @@
           
           if (p.reviewedAt) {
             const reviewed = document.createElement('div');
-            reviewed.className = 'helper'; reviewed.style.color = 'var(--accent-600)'; reviewed.style.marginTop = '6px';
+            reviewed.className = 'helper'; 
+            reviewed.style.color = 'var(--accent-600)'; 
+            reviewed.style.marginTop = '6px';
             reviewed.innerHTML = `✅ Reviewed on ${new Date(p.reviewedAt).toLocaleDateString('en-NG')}`;
             body.appendChild(reviewed);
           }
 
           if (p.status === 'Published') {
             const pubLink = document.createElement('a');
-            pubLink.href = `/pages/property-details?id=${p._id}`; pubLink.target = '_blank'; pubLink.className = 'helper';
-            pubLink.style.display = 'inline-block'; pubLink.style.marginTop = '6px'; pubLink.textContent = '↗ View public page';
+            pubLink.href = `/pages/property-details?id=${p._id}`; 
+            pubLink.target = '_blank'; 
+            pubLink.className = 'helper';
+            pubLink.style.display = 'inline-block'; 
+            pubLink.style.marginTop = '6px'; 
+            pubLink.textContent = '↗ View public page';
             body.appendChild(pubLink);
           }
 

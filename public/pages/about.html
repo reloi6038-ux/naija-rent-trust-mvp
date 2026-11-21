@@ -9,18 +9,20 @@
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/pages.css" />
 </head>
-<body>
+<body data-i18n-title-key="meta.about_title">
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/properties">Browse</a>
-        <a href="/pages/about" class="active">About</a>
-        <a href="/pages/contact">Contact</a>
+        <a href="/pages/properties" data-i18n="nav.browse">Browse rentals</a>
+        <a href="/pages/map" data-i18n="nav.map">Map view</a>
+        <a href="/pages/trust" data-i18n="nav.trust">Trust & Safety</a>
+        <a href="/pages/about" class="active" data-i18n="nav.about">About</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -34,12 +36,12 @@
       </div>
     </div>
 
-    <div class="card" style="padding:32px; max-width:800px; margin:0 auto;">
+    <div class="card" style="padding:32px; max-width:800px; margin:0 auto; color:var(--ink-700); line-height:1.7;">
       <p><strong>Human-reviewed, not guaranteed.</strong> Every listing on NaijaRent is manually checked by our moderation team before it goes live. We verify that photos match the description, pricing is consistent, and the lister's contact details are reachable.</p>
       <p>However, we do not verify property ownership, legal titles, or physical condition. Always inspect a property in person and verify documents before making any payments.</p>
       
       <h2 class="mt-4" style="font-size:1.3rem; color:var(--ink-900);">What we do</h2>
-      <ul style="color:var(--ink-700);line-height:1.8;margin-top:12px;">
+      <ul style="line-height:1.8;margin-top:12px;padding-left:20px;">
         <li>Provide transparent fee breakdowns (Rent, Agency, Legal, Caution).</li>
         <li>Allow renters to submit condition reports after inspection.</li>
         <li>Maintain a public report system for suspicious listings.</li>
@@ -52,10 +54,14 @@
     <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
   </footer>
 
+  <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
+  </script>
 </body>
 </html>

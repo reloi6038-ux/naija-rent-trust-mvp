@@ -19,7 +19,7 @@
         <a href="/pages/properties">Browse rentals</a>
         <a href="/pages/about">About</a>
       </nav>
-      <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>`n      <div class="nav-actions" id="navActions"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -114,7 +114,7 @@
     <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
   </footer>
 
-  <script src="/js/api.js"></script>
+  <script src="/js/i18n.js"></script>`n  <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/compare.js"></script>
   <script src="/js/animations.js"></script>
@@ -358,5 +358,9 @@
       } catch (err) { toast(err.message, 'error'); }
     });
   </script>
+  <script>
+    (async () => { try { await I18n.init(); } catch (err) { console.warn('[i18n]', err); } })();
+  </script>
 </body>
 </html>
+

@@ -9,42 +9,45 @@
   <link rel="stylesheet" href="/css/home.css" />
   <link rel="stylesheet" href="/css/pages.css" />
 </head>
-<body>
+<body data-i18n-title-key="meta.login_title">
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/properties">Browse rentals</a>
-        <a href="/pages/about">About</a>
+        <a href="/pages/properties" data-i18n="nav.browse">Browse rentals</a>
+        <a href="/pages/about" data-i18n="nav.about">About</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
 
   <main id="main" class="container section" style="max-width:460px;">
     <div class="section-head text-center" style="text-align:center; margin-bottom:24px;">
-      <div class="eyebrow">Listers</div>
-      <h1>Welcome back</h1>
-      <p class="section-sub">Sign in to manage your listings and enquiries.</p>
+      <div class="eyebrow" data-i18n="nav.login">Listers</div>
+      <h1 data-i18n="auth.login_title">Welcome back</h1>
+      <p class="section-sub" data-i18n="auth.login_sub">Sign in to manage your listings and enquiries.</p>
     </div>
 
     <form id="loginForm" class="card" style="padding:28px;" novalidate>
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email" data-i18n="auth.email">Email</label>
         <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
       </div>
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password" data-i18n="auth.password">Password</label>
         <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" />
       </div>
       <div style="text-align:right;margin-bottom:14px;">
-        <a href="/pages/forgot-password" style="font-size:.88rem; font-weight:600;">Forgot password?</a>
+        <a href="/pages/forgot-password" style="font-size:.88rem; font-weight:600;" data-i18n="auth.forgot_password">Forgot password?</a>
       </div>
-      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
-      <p class="helper mt-2 text-center" style="text-align:center;">New lister? <a href="/pages/register">Create an account</a></p>
+      <button class="btn btn-primary btn-block" type="submit" data-i18n="auth.sign_in">Sign in</button>
+      <p class="helper mt-2 text-center" style="text-align:center;">
+        <span data-i18n="auth.no_account">New lister?</span> <a href="/pages/register" data-i18n="auth.create_account">Create an account</a>
+      </p>
     </form>
   </main>
 
@@ -52,13 +55,14 @@
     <div class="container">
       <div class="footer-bottom">
         © <span id="year"></span> NaijaRent ·
-        <a href="/pages/terms">Terms</a> ·
-        <a href="/pages/privacy">Privacy</a> ·
-        <a href="/pages/cookies">Cookies</a>
+        <a href="/pages/terms" data-i18n="footer.terms">Terms</a> ·
+        <a href="/pages/privacy" data-i18n="footer.privacy">Privacy</a> ·
+        <a href="/pages/cookies" data-i18n="footer.cookies">Cookies</a>
       </div>
     </div>
   </footer>
 
+  <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
@@ -66,6 +70,7 @@
   <script src="/js/forms.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();

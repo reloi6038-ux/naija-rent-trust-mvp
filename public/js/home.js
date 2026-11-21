@@ -5,12 +5,27 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- Typewriter ----------
-  const phrases = [
-    'clearer prices.',
-    'stronger trust signals.',
-    'transparent fees.',
-    'real Nigerian homes.'
-  ];
+  // Language-aware phrases
+  function getPhrases() {
+    if (typeof I18n !== 'undefined' && I18n.t) {
+      return [
+        I18n.t('hero.title_typed_1'),
+        I18n.t('hero.title_typed_2'),
+        I18n.t('hero.title_typed_3'),
+        I18n.t('hero.title_typed_4')
+      ].filter(Boolean);
+    }
+    return [
+      'clearer prices.',
+      'stronger trust signals.',
+      'transparent fees.',
+      'real Nigerian homes.'
+    ];
+  }
+  let phrases = getPhrases();
+  if (typeof I18n !== 'undefined') {
+    I18n.onLanguageChange(() => { phrases = getPhrases(); phraseIdx = 0; charIdx = 0; });
+  }
   const typedEl = document.getElementById('typedText');
   if (typedEl && !reduceMotion) {
     let phraseIdx = 0;
@@ -107,3 +122,4 @@
     startAuto();
   }
 })();
+
