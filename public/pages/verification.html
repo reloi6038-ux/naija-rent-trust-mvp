@@ -3,83 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>manual review — Admin</title>
+  <title>Verifications & Safety — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: start; }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+    
+    .admin-sidebar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: sticky; top: 100px; box-shadow: var(--shadow-sm); }
+    .admin-sidebar a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--ink-700); font-weight: 600; margin-bottom: 4px; transition: all 0.2s; }
+    .admin-sidebar a:hover { background: var(--ink-50); color: var(--brand-500); }
+    .admin-sidebar a.active { background: var(--brand-50); color: var(--brand-500); border-left: 3px solid var(--brand-500); }
+    
+    @media (max-width: 900px) {
+      .admin-sidebar { display: flex; overflow-x: auto; padding: 10px; position: static; white-space: nowrap; }
+      .admin-sidebar a { margin-bottom: 0; border-left: none; border-bottom: 3px solid transparent; }
+      .admin-sidebar a.active { border-left: none; border-bottom-color: var(--brand-500); }
+    }
+  </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/admin-dashboard" class="active">Admin Panel</a>
+      </nav>
       <div class="nav-actions" id="navActions"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
+
   <main id="main" class="container section">
-    <div class="dash">
-      <aside class="side">
-        <a href="/pages/admin-dashboard">Dashboard</a>
-        <a href="/pages/reports">Reports</a>
-        <a href="/pages/verification" class="active">Verification</a>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <a href="/pages/admin-dashboard">📊 Overview</a>
+        <a href="/pages/admin-review">📝 Listing Reviews</a>
+        <a href="/pages/reports">🚩 Reports</a>
+        <a href="/pages/verification" class="active">✅ Verifications</a>
       </aside>
+
       <div>
-        <div class="section-head">
-          <div class="eyebrow">Admin</div>
-          <h1>manual review</h1>
+        <div class="flex-between mb-3">
+          <div>
+            <h1 style="margin:0;">Verifications & Safety</h1>
+            <p class="section-sub" style="margin:4px 0 0;">Manage "Reviewed" badges and monitor renter condition reports.</p>
+          </div>
         </div>
-        <div class="disclaimer mb-3">
-          <div><strong>Reviewed by NaijaRent.</strong> Toggling these flags does not verify any listing in the real world.</div>
+
+        <div class="notice mb-3">
+          <span>🛡️</span>
+          <div><strong>Review Policy:</strong> Marking a property as "Reviewed" means you have manually checked the listing for consistency. It is not a legal guarantee of ownership.</div>
         </div>
-        <div id="list"></div>
+
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Status</th>
+                <th>Condition Reports</th>
+                <th>Review Badge</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="4"><div class="skeleton" style="height:40px;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent Admin</div></div>
+  </footer>
+
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const tbody = document.getElementById('tableBody');
+
     async function load() {
       try {
         const { data } = await API.get('/admin/properties');
-        const el = document.getElementById('list');
-        el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Title</th><th>Location</th><th>Status</th><th>Reviewed</th><th>Action</th></tr></thead><tbody>
-          ${data.map((p) => `
+        
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No properties found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.map(p => {
+          const isReviewed = !!p.reviewedAt;
+          const condCount = p.conditionReports ? p.conditionReports.length : 0;
+          const condScore = p.conditionScore ? p.conditionScore.toFixed(1) : '—';
+
+          return `
             <tr>
-              <td>${escapeHtml(p.title)}</td>
-              <td>${escapeHtml(p.area)}, ${escapeHtml(p.state)}</td>
-              <td><span class="pill badge-${p.status.toLowerCase()}">${p.status}</span></td>
-              <td>${p.verification?.isVerified ? '<span class="badge badge-verified">reviewed</span>' : '<span class="text-muted">—</span>'}</td>
               <td>
-                <button class="btn btn-sm ${p.verification?.isVerified ? 'btn-ghost' : 'btn-primary'}" data-toggle="${p._id}" data-verified="${!!p.verification?.isVerified}">
-                  ${p.verification?.isVerified ? 'Remove reviewed' : 'Mark Reviewed'}
+                <a href="/pages/property-details?id=${p._id}" target="_blank" style="font-weight:600;">${escapeHtml(p.title)}</a>
+                <div class="helper">${escapeHtml(p.area)}, ${escapeHtml(p.state)}</div>
+              </td>
+              <td><span class="pill badge-${p.status.toLowerCase()}">${p.status}</span></td>
+              <td>
+                ${condCount > 0 
+                  ? `<span class="pill badge-published">${condCount} report${condCount > 1 ? 's' : ''}</span> <span class="text-muted" style="font-size:.85rem;">(Avg ${condScore}/5)</span>` 
+                  : '<span class="text-muted" style="font-size:.85rem;">None yet</span>'}
+              </td>
+              <td>
+                <button class="btn btn-sm ${isReviewed ? 'btn-ghost' : 'btn-primary'}" data-toggle="${p._id}" data-reviewed="${isReviewed}">
+                  ${isReviewed ? 'Remove Badge' : 'Mark Reviewed'}
                 </button>
               </td>
             </tr>
-          `).join('')}
-        </tbody></table></div>`;
+          `;
+        }).join('');
 
-        el.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = async () => {
-          const isVerified = b.dataset.verified === 'true';
-          const ok = await Components.confirm({
-            title: isVerified ? 'Remove manual review?' : 'Mark as Reviewed?',
-            message: 'This is a simulation only. No real verification is performed.',
-            confirmText: isVerified ? 'Remove' : 'Mark reviewed'
-          });
-          if (!ok) return;
-          await API.patch('/admin/properties/' + b.dataset.toggle + '/verify', { isVerified: !isVerified });
-          toast('Updated (reviewed)', 'success'); load();
+        tbody.querySelectorAll('[data-toggle]').forEach(b => {
+          b.onclick = async () => {
+            const isReviewed = b.dataset.reviewed === 'true';
+            const ok = await Components.confirm({
+              title: isReviewed ? 'Remove Reviewed Badge?' : 'Mark as Reviewed?',
+              message: isReviewed 
+                ? 'The public "Reviewed" badge will be removed from this listing.' 
+                : 'This confirms you have manually checked this listing.',
+              confirmText: isReviewed ? 'Remove' : 'Mark Reviewed'
+            });
+            if (!ok) return;
+
+            try {
+              await API.patch('/admin/properties/' + b.dataset.toggle + '/verify', { isVerified: !isReviewed });
+              toast('Status updated', 'success');
+              load();
+            } catch (err) {
+              toast(err.message, 'error');
+            }
+          };
         });
-      } catch (e) { toast(e.message, 'error'); }
+
+      } catch (e) {
+        toast('Admin access required', 'error');
+        window.location.href = '/pages/admin-login';
+      }
     }
+
     load();
   </script>
 </body>
 </html>
-
-
-
-

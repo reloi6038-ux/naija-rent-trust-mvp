@@ -3,117 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Report Queue — Admin</title>
+  <title>Reports Queue — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: start; }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+    
+    .admin-sidebar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: sticky; top: 100px; box-shadow: var(--shadow-sm); }
+    .admin-sidebar a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--ink-700); font-weight: 600; margin-bottom: 4px; transition: all 0.2s; }
+    .admin-sidebar a:hover { background: var(--ink-50); color: var(--brand-500); }
+    .admin-sidebar a.active { background: var(--brand-50); color: var(--brand-500); border-left: 3px solid var(--brand-500); }
+    
+    @media (max-width: 900px) {
+      .admin-sidebar { display: flex; overflow-x: auto; padding: 10px; position: static; white-space: nowrap; }
+      .admin-sidebar a { margin-bottom: 0; border-left: none; border-bottom: 3px solid transparent; }
+      .admin-sidebar a.active { border-left: none; border-bottom-color: var(--brand-500); }
+    }
+  </style>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/admin-dashboard" class="active">Admin Panel</a>
+      </nav>
       <div class="nav-actions" id="navActions"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
+
   <main id="main" class="container section">
-    <div class="dash">
-      <aside class="side">
-        <a href="/pages/admin-dashboard">Dashboard</a>
-        <a href="/pages/reports" class="active">Reports</a>
-        <a href="/pages/verification">Verification</a>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <a href="/pages/admin-dashboard">📊 Overview</a>
+        <a href="/pages/admin-review">📝 Listing Reviews</a>
+        <a href="/pages/reports" class="active">🚩 Reports</a>
+        <a href="/pages/verification">✅ Verifications</a>
       </aside>
+
       <div>
-        <div class="section-head">
-          <div class="eyebrow">Moderation</div>
-          <h1>Report queue</h1>
-          <p class="section-sub">Review reported listings and take action.</p>
+        <div class="flex-between mb-3">
+          <div>
+            <h1 style="margin:0;">Reports Queue</h1>
+            <p class="section-sub" style="margin:4px 0 0;">Review flagged listings and take action.</p>
+          </div>
+          <div class="flex gap-2">
+            <select id="statusFilter" class="form-group" style="padding:8px 32px 8px 12px; font-size:0.9rem; border-radius:8px;">
+              <option value="">All Reports</option>
+              <option value="Open">Open</option>
+              <option value="Reviewed">Reviewed</option>
+              <option value="Dismissed">Dismissed</option>
+            </select>
+          </div>
         </div>
-        <div class="row gap-1 mb-3">
-          <button class="btn btn-ghost btn-sm active" data-filter="">All</button>
-          <button class="btn btn-ghost btn-sm" data-filter="Open">Open</button>
-          <button class="btn btn-ghost btn-sm" data-filter="Reviewed">Reviewed</button>
-          <button class="btn btn-ghost btn-sm" data-filter="Dismissed">Dismissed</button>
+
+        <div id="list">
+          <div class="skeleton" style="height:200px; border-radius:12px;"></div>
         </div>
-        <div id="list"></div>
       </div>
     </div>
   </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent Admin</div></div>
+  </footer>
+
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script>
-    let currentFilter = '';
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const listEl = document.getElementById('list');
+    const filterEl = document.getElementById('statusFilter');
 
-    async function load() {
+    async function loadReports() {
+      listEl.innerHTML = '<div class="skeleton" style="height:200px; border-radius:12px;"></div>';
       try {
-        const q = currentFilter ? `?status=${currentFilter}` : '';
+        const status = filterEl.value;
+        const q = status ? `?status=${status}` : '';
         const { data } = await API.get('/reports' + q);
-        const el = document.getElementById('list');
+
         if (!data.length) {
-          el.innerHTML = `<div class="empty"><img src="/images/empty-reports.svg" alt="" /><h3>No reports</h3><p>When renters report listings, they'll appear here.</p></div>`;
+          listEl.innerHTML = `<div class="empty" style="background:#fff; border-radius:12px; border:1px solid var(--border);"><h3>No reports found</h3><p>There are no reports matching this filter.</p></div>`;
           return;
         }
-        el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>Property</th><th>Reason</th><th>Comment</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-          ${data.map((r) => `
-            <tr>
-              <td>${r.property ? `<a href="/pages/property-details?id=${r.property._id}">${escapeHtml(r.property.title)}</a>` : '—'}</td>
-              <td>${escapeHtml(r.reason)}</td>
-              <td style="max-width:280px;">${escapeHtml(r.comment || '')}</td>
-              <td><span class="pill badge-${r.status.toLowerCase()}">${r.status}</span></td>
-              <td style="white-space:nowrap;">
-                ${r.property ? `
-                  <button class="btn btn-sm btn-ghost" data-unpub="${r.property._id}">Unpublish</button>
-                  <button class="btn btn-sm btn-ghost" data-restore="${r.property._id}">Restore</button>
-                ` : ''}
-                <button class="btn btn-sm btn-ghost" data-review="${r._id}">Review</button>
-                <button class="btn btn-sm btn-ghost" data-dismiss="${r._id}">Dismiss</button>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody></table></div>`;
 
-        el.querySelectorAll('[data-review]').forEach((b) => b.onclick = async () => {
-          await API.patch('/reports/' + b.dataset.review, { status: 'Reviewed' }); load();
+        listEl.innerHTML = `
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Reason</th>
+                  <th>Details</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map(r => `
+                  <tr>
+                    <td>
+                      ${r.property ? `<a href="/pages/property-details?id=${r.property._id}" target="_blank" style="font-weight:600; color:var(--brand-500);">${escapeHtml(r.property.title)}</a>` : '<span class="text-muted">Deleted Listing</span>'}
+                    </td>
+                    <td><span class="pill">${escapeHtml(r.reason)}</span></td>
+                    <td style="max-width:200px; font-size:0.85rem;">${escapeHtml(r.comment || 'No comment')}</td>
+                    <td><span class="pill badge-${r.status.toLowerCase()}">${r.status}</span></td>
+                    <td style="white-space:nowrap;">
+                      ${r.property ? `
+                        <button class="btn btn-sm btn-ghost" data-unpub="${r.property._id}" title="Unpublish Listing">🚫</button>
+                      ` : ''}
+                      <button class="btn btn-sm btn-ghost" data-review="${r._id}" title="Mark Reviewed" ${r.status === 'Reviewed' ? 'disabled' : ''}>✅</button>
+                      <button class="btn btn-sm btn-ghost" data-dismiss="${r._id}" title="Dismiss" ${r.status === 'Dismissed' ? 'disabled' : ''}>✖️</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        // Attach listeners
+        listEl.querySelectorAll('[data-review]').forEach(b => b.onclick = async () => {
+          await API.patch('/reports/' + b.dataset.review, { status: 'Reviewed' });
+          toast('Marked as reviewed', 'success');
+          loadReports();
         });
-        el.querySelectorAll('[data-dismiss]').forEach((b) => b.onclick = async () => {
-          await API.patch('/reports/' + b.dataset.dismiss, { status: 'Dismissed' }); load();
+        listEl.querySelectorAll('[data-dismiss]').forEach(b => b.onclick = async () => {
+          await API.patch('/reports/' + b.dataset.dismiss, { status: 'Dismissed' });
+          toast('Report dismissed', 'success');
+          loadReports();
         });
-        el.querySelectorAll('[data-unpub]').forEach((b) => b.onclick = async () => {
+        listEl.querySelectorAll('[data-unpub]').forEach(b => b.onclick = async () => {
           const ok = await Components.confirm({
-            title: 'Unpublish this listing?',
-            message: 'It will be removed from public search.',
+            title: 'Unpublish Property?',
+            message: 'This will remove the listing from public search immediately.',
             confirmText: 'Unpublish',
             danger: true
           });
           if (!ok) return;
-          await API.patch('/admin/properties/' + b.dataset.unpub + '/unpublish', { adminNote: 'Unpublished via report review' });
-          toast('Unpublished', 'success'); load();
+          await API.patch('/admin/properties/' + b.dataset.unpub + '/unpublish', { adminNote: 'Unpublished due to report' });
+          toast('Property unpublished', 'success');
+          loadReports();
         });
-        el.querySelectorAll('[data-restore]').forEach((b) => b.onclick = async () => {
-          await API.patch('/admin/properties/' + b.dataset.restore + '/restore', {});
-          toast('Restored', 'success'); load();
-        });
-      } catch (e) { toast(e.message, 'error'); }
+
+      } catch (e) {
+        toast(e.message, 'error');
+      }
     }
 
-    document.querySelectorAll('[data-filter]').forEach((b) => {
-      b.addEventListener('click', () => {
-        document.querySelectorAll('[data-filter]').forEach((x) => x.classList.remove('active'));
-        b.classList.add('active');
-        currentFilter = b.dataset.filter;
-        load();
-      });
-    });
-
-    load();
+    filterEl.addEventListener('change', loadReports);
+    loadReports();
   </script>
 </body>
 </html>
-
-
-
-
