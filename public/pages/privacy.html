@@ -1,60 +1,52 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Privacy Policy — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
-  <header class="nav"><div class="container nav-inner">
-    <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
-    <div class="nav-actions" id="navActions"></div>
-  </div></header>
-  <main class="container section" style="max-width:820px;">
-    <h1>Privacy Policy (NDPR)</h1>
-    <p class="lead">Last updated: <span id="updated">—</span></p>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
-    <div class="notice mb-3">This is a starting template aligned with the Nigeria Data Protection Regulation (NDPR). Have a Nigerian lawyer review before publishing.</div>
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/properties">Browse rentals</a>
+        <a href="/pages/about">About</a>
+      </nav>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
 
-    <h2>1. Data we collect</h2>
-    <ul>
-      <li>Account data: name, email, phone, hashed password.</li>
-      <li>Listing data: property details, photos you upload.</li>
-      <li>Enquiry data: name, phone, email, message from renters.</li>
-      <li>Technical data: IP address, device, browser, session cookies.</li>
-    </ul>
-
-    <h2>2. Lawful basis</h2>
-    <p>We process data to perform the contract with you (account and listing services), for our legitimate interest in preventing fraud, and with your consent (marketing emails, non-essential cookies).</p>
-
-    <h2>3. Your rights under NDPR</h2>
-    <p>You have the right to access, correct, delete, restrict, or object to processing of your data. Email <a href="mailto:privacy@yourdomain.com">privacy@yourdomain.com</a> to exercise these rights.</p>
-
-    <h2>4. Data retention</h2>
-    <p>Account data is retained while your account is active plus 12 months. Listing data is retained for 24 months after listing removal for fraud prevention.</p>
-
-    <h2>5. Third-party processors</h2>
-    <p>We use MongoDB Atlas (database, EU/US region), Render (hosting), Resend (transactional email), and Sentry (error tracking). Each processor is bound by a Data Processing Agreement.</p>
-
-    <h2>6. Cookies</h2>
-    <p>See our <a href="/pages/cookies">Cookie Policy</a>. You can accept or reject non-essential cookies via the banner.</p>
-
-    <h2>7. Cross-border transfers</h2>
-    <p>Some processors operate outside Nigeria. Where data leaves Nigeria we rely on adequacy decisions or standard contractual clauses permitted under NDPR.</p>
-
-    <h2>8. Complaints</h2>
-    <p>You may lodge a complaint with the Nigeria Data Protection Commission (NDPC) at <a href="https://ndpc.gov.ng" target="_blank" rel="noopener">ndpc.gov.ng</a>.</p>
-
-    <h2>9. Contact</h2>
-    <p>Data Protection Officer: <a href="mailto:dpo@yourdomain.com">dpo@yourdomain.com</a>.</p>
-
-    <p class="helper mt-4">Template placeholder — replace company name, address, and contact before publishing.</p>
+  <main id="main" class="container section">
+    <div class="card" style="padding:32px; max-width:800px; margin:0 auto; color:var(--ink-700); line-height:1.7;">
+      <h1 style="color:var(--ink-900); margin-bottom:16px;">Privacy Policy (NDPR)</h1>
+      <p>Last updated: Today</p>
+      <h2 style="color:var(--ink-900); margin-top:24px;">1. Data we collect</h2>
+      <ul style="margin-left:20px; margin-top:8px;">
+        <li>Account data: name, email, phone, hashed password.</li>
+        <li>Listing data: property details, photos.</li>
+        <li>Enquiry data: name, phone, email, message.</li>
+      </ul>
+      <h2 style="color:var(--ink-900); margin-top:24px;">2. Your rights under NDPR</h2>
+      <p>You have the right to access, correct, delete, restrict, or object to processing of your data.</p>
+    </div>
   </main>
-  <script>document.getElementById('updated').textContent = new Date().toLocaleDateString();</script>
-  <script src="/js/api.js"></script><script src="/js/components.js"></script><script src="/js/animations.js"></script><script src="/js/ui.js"></script>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
-
-
-
