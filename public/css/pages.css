@@ -1,0 +1,109 @@
+﻿/* ============================================================
+   Premium Sub-Pages Stylesheet (Light Theme)
+   ============================================================ */
+
+body:not(.home) {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+/* Premium Page Header */
+.page-header {
+  background: linear-gradient(135deg, #f0f4ff, #ffffff);
+  padding: 48px 0 32px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+}
+.page-header h1 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+.page-header .section-sub {
+  color: #64748b;
+  font-size: 1.1rem;
+  max-width: 600px;
+}
+
+/* Premium Cards & Forms */
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.form-group input, .form-group select, .form-group textarea {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+/* Mobile: Stack everything */
+@media (max-width: 860px) {
+  .page-header { padding: 32px 0 24px; }
+  .container { padding: 0 16px; }
+  
+  /* Stack all 2-column grids (dashboards, details, etc.) */
+  .dash, .grid-2, .grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  /* Make cards full width */
+  .card { border-radius: 12px; }
+  
+  /* Make sticky sidebars static */
+  .side, .sticky-card, .filters-card { position: static !important; }
+}
+
+/* Properties Page Specifics */
+.filters-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+/* Mobile Dashboard Fixes */
+@media (max-width: 900px) {
+  /* Stack the sidebar and main content */
+  .dash { display: flex; flex-direction: column; gap: 16px; }
+  
+  /* Make the sidebar a horizontal scrolling menu */
+  .side {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 8px !important;
+    gap: 8px !important;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    border-radius: 12px;
+  }
+  
+  .side a {
+    white-space: nowrap;
+    margin: 0 !important;
+    padding: 10px 16px !important;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+  
+  .side a.active {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+  }
+}

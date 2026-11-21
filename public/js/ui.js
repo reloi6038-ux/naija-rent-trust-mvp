@@ -1,14 +1,12 @@
 ﻿/**
- * Global UI bootstrap: nav auth state, mobile toggle.
- * Auth check is silently non-blocking so public pages render even when
- * the visitor is not logged in (401 from /auth/me is expected).
+ * Global UI bootstrap: Nav, Back-to-top.
  */
 async function loadMe() {
   try {
     const { user } = await API.get('/auth/me');
     return user;
   } catch {
-    return null;
+    return null; // 401 is expected for guests
   }
 }
 
@@ -102,12 +100,38 @@ function mountNavToggle() {
   }
 }
 
+function setupBackToTop() {
+  if (document.querySelector('.back-to-top')) return;
+
+  const btn = document.createElement('button');
+  btn.className = 'back-to-top';
+  btn.setAttribute('aria-label', 'Back to top');
+  btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  
+  document.body.appendChild(btn);
+
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      btn.classList.add('show');
+    } else {
+      btn.classList.remove('show');
+    }
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// --- Initialization ---
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initNav();
     mountNavToggle();
+    setupBackToTop();
   });
 } else {
   initNav();
   mountNavToggle();
+  setupBackToTop();
 }
