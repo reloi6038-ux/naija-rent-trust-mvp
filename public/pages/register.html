@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Register as a Lister — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="nav" role="banner">
     <div class="container nav-inner">
-      <a class="brand" href="/">
-        <img src="/images/logo-mark.svg" alt="" width="32" height="32" />
-        Naija<em>Rent</em>
-      </a>
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
         <a href="/pages/properties">Browse rentals</a>
+        <a href="/pages/about">About</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
@@ -25,7 +25,7 @@
   </header>
 
   <main id="main" class="container section" style="max-width:560px;">
-    <div class="section-head">
+    <div class="section-head text-center" style="text-align:center; margin-bottom:24px;">
       <div class="eyebrow">Get started</div>
       <h1>Create your lister account</h1>
       <p class="section-sub">Publish and manage properties across Nigeria.</p>
@@ -34,11 +34,11 @@
     <form id="regForm" class="card" style="padding:28px;" novalidate>
       <div class="form-group">
         <label for="name">Full name</label>
-        <input id="name" name="name" required autocomplete="name" />
+        <input id="name" name="name" required autocomplete="name" placeholder="e.g. Adebayo Ogunlesi" />
       </div>
       <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" required autocomplete="email" />
+        <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
       </div>
       <div class="form-group">
         <label for="phone">Phone</label>
@@ -50,26 +50,25 @@
         <div class="helper">At least 8 characters.</div>
       </div>
 
-      <!-- NEW: Terms acceptance -->
-      <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;">
+      <div class="form-group" style="display:flex;align-items:flex-start;gap:10px; margin-top:24px;">
         <input
           id="acceptTerms"
           name="acceptTerms"
           type="checkbox"
           required
-          style="margin-top:3px;width:18px;height:18px;flex-shrink:0;"
+          style="margin-top:4px;width:18px;height:18px;flex-shrink:0;cursor:pointer;"
         />
-        <label for="acceptTerms" style="font-weight:500;color:var(--text-soft);font-size:.92rem;line-height:1.5;">
+        <label for="acceptTerms" style="font-weight:500;color:var(--ink-700);font-size:.9rem;line-height:1.5;cursor:pointer;">
           I agree to the
-          <a href="/pages/terms" target="_blank" rel="noopener">Terms of Service</a>
+          <a href="/pages/terms" target="_blank" rel="noopener" style="font-weight:600;">Terms of Service</a>
           and
-          <a href="/pages/privacy" target="_blank" rel="noopener">Privacy Policy</a>.
-          I understand that "Reviewed" listings are human-checked but not a guarantee of ownership or condition.
+          <a href="/pages/privacy" target="_blank" rel="noopener" style="font-weight:600;">Privacy Policy</a>.
+          I understand that "Reviewed" listings are human-checked but not a guarantee of ownership.
         </label>
       </div>
 
-      <button class="btn btn-primary btn-block" type="submit">Create account</button>
-      <p class="helper mt-2">
+      <button class="btn btn-primary btn-block mt-2" type="submit">Create account</button>
+      <p class="helper mt-2 text-center" style="text-align:center;">
         Already registered? <a href="/pages/login">Sign in</a>
       </p>
     </form>
@@ -81,8 +80,7 @@
         © <span id="year"></span> NaijaRent ·
         <a href="/pages/terms">Terms</a> ·
         <a href="/pages/privacy">Privacy</a> ·
-        <a href="/pages/cookies">Cookies</a> ·
-        <a href="/pages/trust">Trust & Safety</a>
+        <a href="/pages/cookies">Cookies</a>
       </div>
     </div>
   </footer>
@@ -99,13 +97,11 @@
       e.preventDefault();
       const form = e.target;
 
-      // Extra client-side guard for terms acceptance
       if (!form.acceptTerms.checked) {
         toast('You must accept the Terms and Privacy Policy.', 'error');
         form.acceptTerms.focus();
         return;
       }
-
       if (!Forms.validate(form)) return;
 
       const body = Object.fromEntries(new FormData(form));
@@ -122,8 +118,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-

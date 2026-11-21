@@ -3,48 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>About — NaijaRent & Trust</title>
+  <title>About — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/properties">Browse</a><a href="/pages/about" class="active">About</a><a href="/pages/contact">Contact</a>
+        <a href="/pages/properties">Browse</a>
+        <a href="/pages/about" class="active">About</a>
+        <a href="/pages/contact">Contact</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
-  <main id="main" class="container section" style="max-width:780px;">
-    <div class="section-head">
-      <div class="page-header"><div class="container"><div class="eyebrow">Our mission</div><h1>About Naija Rent & Trust</h1><p class="section-sub">A demonstration rental marketplace MVP for Nigeria.</p></div></div>
+
+  <main id="main" class="container section">
+    <div class="page-header">
+      <div class="container">
+        <div class="eyebrow">Our mission</div>
+        <h1>About NaijaRent</h1>
+        <p class="section-sub">A transparent rental marketplace built for Nigeria.</p>
+      </div>
     </div>
-    <div class="card" style="padding:32px;">
-      <p><strong>Reviewed by NaijaRent.</strong> Any "verified" badge in this product is reviewed and exists for demonstration only. It does <em>not</em> represent real-world property verification, ownership checks, or legal due diligence.</p>
-      <p>No real payments are processed. No real personal data is collected. All sample names, addresses, and prices are fictional.</p>
-      <h2 class="mt-3" style="font-size:1.3rem;">What this MVP explores</h2>
-      <ul style="color:var(--text-soft);line-height:1.8;">
-        <li>Transparent pricing with published fee breakdowns</li>
-        <li>Simple, mobile-first rental discovery</li>
-        <li>An easy reporting channel for renters</li>
-        <li>A lister workspace with listing and enquiry management</li>
+
+    <div class="card" style="padding:32px; max-width:800px; margin:0 auto;">
+      <p><strong>Human-reviewed, not guaranteed.</strong> Every listing on NaijaRent is manually checked by our moderation team before it goes live. We verify that photos match the description, pricing is consistent, and the lister's contact details are reachable.</p>
+      <p>However, we do not verify property ownership, legal titles, or physical condition. Always inspect a property in person and verify documents before making any payments.</p>
+      
+      <h2 class="mt-4" style="font-size:1.3rem; color:var(--ink-900);">What we do</h2>
+      <ul style="color:var(--ink-700);line-height:1.8;margin-top:12px;">
+        <li>Provide transparent fee breakdowns (Rent, Agency, Legal, Caution).</li>
+        <li>Allow renters to submit condition reports after inspection.</li>
+        <li>Maintain a public report system for suspicious listings.</li>
+        <li>Keep the interface lightweight for low-data networks.</li>
       </ul>
     </div>
   </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
-
-
-
-
-

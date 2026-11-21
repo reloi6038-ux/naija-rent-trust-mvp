@@ -5,19 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Login — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <main id="main" class="container section" style="max-width:440px;">
-    <div class="section-head">
-      <div class="eyebrow">Admin</div>
-      <h1>Admin sign in</h1>
-      <p class="section-sub">Restricted access. Admin accounts only.</p>
+    <div class="section-head text-center" style="text-align:center; margin-bottom:24px;">
+      <div class="eyebrow" style="color:var(--danger-500);">Restricted</div>
+      <h1>Admin Sign In</h1>
+      <p class="section-sub">Authorized personnel only.</p>
     </div>
 
     <form id="form" class="card" style="padding:28px;" novalidate>
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Admin Email</label>
         <input id="email" name="email" type="email" required autocomplete="email" />
       </div>
       <div class="form-group">
@@ -26,10 +30,10 @@
       </div>
       <div class="form-group hidden" id="totpGroup">
         <label for="totp">2FA code (6 digits)</label>
-        <input id="totp" name="totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" />
+        <input id="totp" name="totp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="123456" />
         <div class="helper">From your authenticator app.</div>
       </div>
-      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      <button class="btn btn-primary btn-block" type="submit">Sign in to Dashboard</button>
     </form>
   </main>
 
@@ -47,11 +51,10 @@
       body.expectRole = 'admin';
 
       try {
-        const resp = await API.post('/auth/login', body);
-        toast('Signed in.', 'success');
+        await API.post('/auth/login', body);
+        toast('Signed in as Admin.', 'success');
         setTimeout(() => { window.location.href = '/pages/admin-dashboard'; }, 400);
       } catch (err) {
-        // If 2FA is required, surface the field
         if (err.message && err.message.toLowerCase().includes('2fa')) {
           document.getElementById('totpGroup').classList.remove('hidden');
           document.getElementById('totp').focus();
@@ -64,5 +67,3 @@
   </script>
 </body>
 </html>
-
-

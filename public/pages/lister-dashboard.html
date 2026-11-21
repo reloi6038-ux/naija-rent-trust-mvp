@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lister Dashboard — NaijaRent</title>
+  <title>Dashboard — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
-      <a class="brand" href="/">
-        <img src="/images/logo-mark.svg" alt="" width="32" height="32" />
-        Naija<em>Rent</em>
-      </a>
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
         <a href="/pages/lister-dashboard" class="active">Dashboard</a>
         <a href="/pages/enquiries">Enquiries</a>
@@ -25,34 +26,27 @@
   </header>
 
   <main id="main" class="container section">
-    <div class="flex-between mb-3" style="flex-wrap:wrap;gap:10px;">
-      <div>
-        <div class="eyebrow">Your workspace</div>
-        <h1 style="margin:0;">Dashboard</h1>
-      </div>
-      <div class="flex gap-2" style="flex-wrap:wrap;">
-        <a href="/pages/lister-profile?id=me" class="btn btn-ghost" id="myProfileLink">View my public profile</a>
-        <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+    <div class="page-header" style="background: transparent; padding: 0; margin-bottom: 24px;">
+      <div class="flex-between">
+        <div>
+          <div class="eyebrow">Your workspace</div>
+          <h1 style="margin:0;">Dashboard</h1>
+        </div>
+        <div class="flex gap-2">
+          <a href="/pages/lister-profile?id=me" class="btn btn-ghost" id="myProfileLink">View my profile</a>
+          <a href="/pages/create-listing" class="btn btn-primary">+ New listing</a>
+        </div>
       </div>
     </div>
 
     <div class="stats-grid mb-4" id="stats"></div>
 
-    <div class="section-head">
-      <h2>My listings</h2>
-      <p class="section-sub">Manage listings, review statuses, and enquiries.</p>
-    </div>
+    <h2 style="font-size:1.3rem; margin-bottom:16px; color:var(--ink-900);">My listings</h2>
     <div id="listings" class="grid grid-auto"></div>
   </main>
 
   <footer class="footer">
-    <div class="container">
-      <div class="footer-bottom">
-        © <span id="year"></span> NaijaRent ·
-        <a href="/pages/terms">Terms</a> ·
-        <a href="/pages/privacy">Privacy</a>
-      </div>
-    </div>
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
   </footer>
 
   <script src="/js/api.js"></script>
@@ -61,15 +55,6 @@
   <script src="/js/ui.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Resolve "my profile" link
-    (async () => {
-      try {
-        const me = await API.get('/auth/me');
-        const link = document.getElementById('myProfileLink');
-        if (link && me.user) link.href = `/pages/lister-profile?id=${me.user.id}`;
-      } catch {}
-    })();
 
     const STATUS = {
       Published: { label: 'Published', cls: 'badge-published' },
@@ -81,19 +66,21 @@
 
     (async () => {
       try {
-        // Check email verification first
-        const { data } = await API.get('/properties/mine');
+        const me = await API.get('/auth/me');
+        const link = document.getElementById('myProfileLink');
+        if (link && me.user) link.href = `/pages/lister-profile?id=${me.user.id}`;
 
+        const { data } = await API.get('/properties/mine');
+        
         const counts = {
           total: data.length,
           published: data.filter(p => p.status === 'Published').length,
           pending: data.filter(p => p.status === 'Pending').length,
-          rejected: data.filter(p => p.status === 'Rejected').length,
-          rented: data.filter(p => p.status === 'Rented').length
+          rejected: data.filter(p => p.status === 'Rejected').length
         };
 
-        const variants = { total: '', published: 'accent', pending: '', rejected: 'danger', rented: 'warn' };
-        const labels = { total: 'Total listings', published: 'Published', pending: 'Pending review', rejected: 'Rejected', rented: 'Rented' };
+        const variants = { total: '', published: 'accent', pending: '', rejected: 'danger' };
+        const labels = { total: 'Total listings', published: 'Published', pending: 'Pending', rejected: 'Rejected' };
 
         const statsEl = document.getElementById('stats');
         Object.entries(counts).forEach(([k, v]) => {
@@ -102,92 +89,33 @@
 
         const el = document.getElementById('listings');
         if (!data.length) {
-          el.innerHTML = `
-            <div style="grid-column:1/-1;">
-              <div class="empty">
-                <img src="/images/empty-listings.svg" alt="" />
-                <h3>You have no listings yet</h3>
-                <p>Create your first property listing to get started.</p>
-                <a class="btn btn-primary" href="/pages/create-listing">Create listing</a>
-              </div>
-            </div>`;
+          el.innerHTML = `<div class="empty" style="grid-column:1/-1;"><h3>No listings yet</h3><a class="btn btn-primary" href="/pages/create-listing">Create listing</a></div>`;
           return;
         }
 
         data.forEach((p) => {
           const card = Components.propertyCard(p, { href: `/pages/edit-listing?id=${p._id}` });
           const body = card.querySelector('.card-body');
-
-          // Replace status pill with new mapping
-          const existingStatus = card.querySelector('.badge-status.right');
-          if (existingStatus) {
-            existingStatus.remove();
-          }
-          const statusMeta = STATUS[p.status] || { label: p.status, cls: 'pill' };
-          const statusPill = document.createElement('div');
-          statusPill.className = 'badge-status right';
-          statusPill.innerHTML = `<span class="pill ${statusMeta.cls}">${statusMeta.label}</span>`;
-          card.querySelector('.card-img').appendChild(statusPill);
-
-          // Reviewed-on badge
+          
           if (p.reviewedAt) {
             const reviewed = document.createElement('div');
-            reviewed.className = 'helper';
-            reviewed.style.color = 'var(--accent-600)';
-            reviewed.style.marginTop = '6px';
+            reviewed.className = 'helper'; reviewed.style.color = 'var(--accent-600)'; reviewed.style.marginTop = '6px';
             reviewed.innerHTML = `✅ Reviewed on ${new Date(p.reviewedAt).toLocaleDateString('en-NG')}`;
             body.appendChild(reviewed);
           }
 
-          // Public page link
           if (p.status === 'Published') {
             const pubLink = document.createElement('a');
-            pubLink.href = `/pages/property-details?id=${p._id}`;
-            pubLink.target = '_blank';
-            pubLink.className = 'helper';
-            pubLink.style.display = 'inline-block';
-            pubLink.style.marginTop = '6px';
-            pubLink.textContent = '↗ View public page';
+            pubLink.href = `/pages/property-details?id=${p._id}`; pubLink.target = '_blank'; pubLink.className = 'helper';
+            pubLink.style.display = 'inline-block'; pubLink.style.marginTop = '6px'; pubLink.textContent = '↗ View public page';
             body.appendChild(pubLink);
           }
 
-          // Admin note / rejection reason
-          if (p.adminNote && (p.status === 'Rejected' || p.status === 'Unpublished')) {
-            const note = document.createElement('div');
-            note.className = 'helper';
-            note.style.color = p.status === 'Rejected' ? 'var(--danger-500)' : 'var(--warn-600)';
-            note.style.marginTop = '8px';
-            note.innerHTML = `<strong>${p.status === 'Rejected' ? 'Rejection reason' : 'Admin note'}:</strong> ${escapeHtml(p.adminNote)}`;
-            body.appendChild(note);
-          }
-
-          // Review history (collapsible)
-          if (Array.isArray(p.reviewHistory) && p.reviewHistory.length) {
-            const details = document.createElement('details');
-            details.style.marginTop = '10px';
-            details.style.fontSize = '.82rem';
-            details.innerHTML = `
-              <summary style="cursor:pointer;color:var(--text-muted);font-weight:600;">Review history (${p.reviewHistory.length})</summary>
-              <div class="timeline" style="margin-top:12px;padding-left:22px;">
-                ${p.reviewHistory.slice().reverse().map(r => `
-                  <div class="timeline-item">
-                    <h4 style="font-size:.85rem;margin:0;">${escapeHtml(r.action)}</h4>
-                    <p style="margin:2px 0;font-size:.78rem;">${new Date(r.at).toLocaleString()}</p>
-                    ${r.note ? `<p style="margin:2px 0;font-size:.78rem;color:var(--text-muted);">${escapeHtml(r.note)}</p>` : ''}
-                  </div>
-                `).join('')}
-              </div>
-            `;
-            body.appendChild(details);
-          }
-
-          // Actions
           const actions = document.createElement('div');
           actions.className = 'flex gap-1 mt-2';
           actions.innerHTML = `
             <a class="btn btn-ghost btn-sm" href="/pages/edit-listing?id=${p._id}">Edit</a>
             ${p.status === 'Published' ? `<button class="btn btn-primary btn-sm" data-rented="${p._id}">Mark rented</button>` : ''}
-            ${p.status === 'Rejected' ? `<a class="btn btn-ghost btn-sm" href="/pages/edit-listing?id=${p._id}">Fix & resubmit</a>` : ''}
           `;
           body.appendChild(actions);
           el.appendChild(card);
@@ -195,30 +123,17 @@
 
         el.querySelectorAll('[data-rented]').forEach((btn) => {
           btn.addEventListener('click', async () => {
-            const ok = await Components.confirm({
-              title: 'Mark as rented?',
-              message: 'This listing will be hidden from public search.',
-              confirmText: 'Mark rented'
-            });
-            if (!ok) return;
+            if (!confirm('Mark this listing as rented?')) return;
             try {
               await API.post('/properties/' + btn.dataset.rented + '/rented', {});
-              toast('Marked as rented', 'success');
-              setTimeout(() => location.reload(), 600);
+              toast('Marked as rented', 'success'); setTimeout(() => location.reload(), 600);
             } catch (err) { toast(err.message, 'error'); }
           });
         });
       } catch (e) {
-        toast(e.message, 'error');
-        window.location.href = '/pages/login';
+        toast('Please log in', 'error'); window.location.href = '/pages/login';
       }
     })();
   </script>
 </body>
 </html>
-
-
-
-
-
-

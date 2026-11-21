@@ -107,3 +107,67 @@ body:not(.home) {
     color: #ffffff !important;
   }
 }
+
+/* ============================================================
+   Mobile Card Container Fixes (Properties Page)
+   ============================================================ */
+
+@media (max-width: 860px) {
+  /* 1. Ensure the main container has side padding */
+  .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* 2. Properties page layout adjustments */
+  .dash {
+    grid-template-columns: 1fr !important; /* Force single column */
+    gap: 20px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 3. Make the results grid full width without overflow */
+  .grid.grid-auto, #results {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 16px !important;
+  }
+
+  /* 4. Property cards fit inside the grid */
+  .property-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 12px !important;
+  }
+
+  /* 5. Ensure images don't overflow the card */
+  .property-card .card-img {
+    width: 100% !important;
+    border-radius: 12px 12px 0 0 !important;
+  }
+
+  /* 6. Fix the card body padding */
+  .property-card .card-body {
+    padding: 16px !important;
+  }
+
+  /* 7. Fix the header row (Sort, Map view, Filters) */
+  .flex-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  /* Make the sort dropdown full width on mobile */
+  .row select, #fSort {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
