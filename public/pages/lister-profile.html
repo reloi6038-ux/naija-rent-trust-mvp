@@ -1,1 +1,95 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lister Profile — NaijaRent</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/properties">Browse rentals</a>
+        <a href="/pages/about">About</a>
+      </nav>
+      <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main class="container section" id="main">
+    <div class="page-header" style="background: transparent; padding: 0; margin-bottom: 24px;">
+      <div class="eyebrow">Lister</div>
+      <h1 style="margin:0;">Profile</h1>
+    </div>
+    <div id="profileRoot"><div class="skeleton" style="height:200px; border-radius:14px;"></div></div>
+    <div id="listingsRoot" class="grid grid-3 mt-4"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/compare.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    let id = new URLSearchParams(location.search).get('id');
+
+    function renderProfile(profile) {
+      const initial = profile.name.split(' ').map(s => s[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('profileRoot').innerHTML = `
+        <div class="card" style="padding:30px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;">
+          <div class="avatar avatar-lg" style="width:72px;height:72px;font-size:1.4rem;">${initial}</div>
+          <div style="flex:1;">
+            <h1 style="margin:0 0 6px;">${escapeHtml(profile.name)}</h1>
+            <div class="text-muted">Member since ${new Date(profile.memberSince).toLocaleDateString('en-NG', { month:'long', year:'numeric' })}</div>
+          </div>
+          <div class="flex gap-3" style="flex-wrap:wrap;">
+            <div class="stat-card" style="padding:16px 20px;"><div class="v" style="font-size:1.4rem;">${profile.activeListings}</div><div class="l">Listings</div></div>
+            <div class="stat-card accent" style="padding:16px 20px;"><div class="v" style="font-size:1.4rem;">${profile.responseRate}%</div><div class="l">Response rate</div></div>
+          </div>
+        </div>`;
+      const list = document.getElementById('listingsRoot');
+      list.innerHTML = '';
+      if (!profile.listings.length) {
+        list.innerHTML = '<div class="empty" style="grid-column:1/-1;"><p>No published listings yet.</p></div>';
+        return;
+      }
+      profile.listings.forEach(p => list.appendChild(Components.propertyCard(p)));
+    }
+
+    (async () => {
+      if (!id) { document.getElementById('profileRoot').innerHTML = '<p>No lister id</p>'; return; }
+      if (id === 'me') {
+        try {
+          const me = await API.get('/auth/me');
+          id = me.user.id;
+          const { profile } = await API.get(`/users/${id}/public`);
+          renderProfile(profile);
+        } catch (e) {
+          document.getElementById('profileRoot').innerHTML = `<div class="empty"><p>Not signed in.</p><a class="btn btn-ghost" href="/pages/login">Sign in</a></div>`;
+        }
+        return;
+      }
+      
+      try {
+        const { profile } = await API.get(`/users/${id}/public`);
+        renderProfile(profile);
+      } catch (e) {
+        document.getElementById('profileRoot').innerHTML = `<div class="empty"><p>${escapeHtml(e.message)}</p></div>`;
+      }
+    })();
+  </script>
+</body>
+</html>

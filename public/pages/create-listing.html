@@ -3,30 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Create Listing — NaijaRent & Trust</title>
+  <title>Create Listing — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/lister-dashboard">Dashboard</a>
+        <a href="/pages/create-listing" class="active">+ New Listing</a>
+      </nav>
       <div class="nav-actions" id="navActions"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
+
   <main id="main" class="container section" style="max-width:820px;">
-    <div class="section-head">
+    <div class="page-header" style="background: transparent; padding: 0; margin-bottom: 24px;">
       <div class="eyebrow">New</div>
-      <h1>Create a listing</h1>
-      <p class="section-sub">Publish a property for renters to discover.</p>
+      <h1 style="margin:0;">Create a listing</h1>
+      <p class="section-sub" style="margin:4px 0 0;">Publish a property for renters to discover.</p>
     </div>
 
     <form id="form" class="card" style="padding:30px;" enctype="multipart/form-data" novalidate>
       <div class="divider-label">Basic information</div>
-      <div class="form-group"><label for="title">Title</label><input id="title" name="title" required maxlength="140" /></div>
+      <div class="form-group"><label for="title">Title</label><input id="title" name="title" required maxlength="140" placeholder="e.g. Modern 2-Bed Flat in Lekki" /></div>
       <div class="form-row">
         <div class="form-group">
           <label for="propertyType">Property type</label>
@@ -46,10 +53,10 @@
 
       <div class="divider-label">Location</div>
       <div class="form-row">
-        <div class="form-group"><label for="state">State</label><input id="state" name="state" required /></div>
-        <div class="form-group"><label for="area">Area</label><input id="area" name="area" required /></div>
+        <div class="form-group"><label for="state">State</label><input id="state" name="state" required placeholder="e.g. Lagos" /></div>
+        <div class="form-group"><label for="area">Area</label><input id="area" name="area" required placeholder="e.g. Lekki Phase 1" /></div>
       </div>
-      <div class="form-group"><label for="address">Address / landmark</label><input id="address" name="address" /></div>
+      <div class="form-group"><label for="address">Address / landmark</label><input id="address" name="address" placeholder="e.g. Behind Admiralty Way" /></div>
 
       <div class="divider-label">Property details</div>
       <div class="form-row">
@@ -66,11 +73,11 @@
         <div class="form-group"><label for="legalFee">Legal fee (₦)</label><input id="legalFee" name="legalFee" type="number" min="0" value="0" /></div>
         <div class="form-group"><label for="cautionDeposit">Caution deposit (₦)</label><input id="cautionDeposit" name="cautionDeposit" type="number" min="0" value="0" /></div>
       </div>
-      <div class="pill pill-brand" id="totalPreview">Estimated total move-in: ₦0</div>
+      <div class="pill pill-brand" id="totalPreview" style="font-size:1rem; padding:10px 16px;">Estimated total move-in: ₦0</div>
 
       <div class="divider-label">Description</div>
-      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" required></textarea></div>
-      <div class="form-group"><label for="amenities">Amenities (comma separated)</label><input id="amenities" name="amenities" placeholder="Water, Security, Parking" /></div>
+      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" required placeholder="Describe the property, neighborhood, and any unique features..."></textarea></div>
+      <div class="form-group"><label for="amenities">Amenities (comma separated)</label><input id="amenities" name="amenities" placeholder="e.g. Water, Security, Parking" /></div>
 
       <div class="divider-label">Photos</div>
       <div class="dropzone" id="dropzone">
@@ -80,16 +87,23 @@
       <input id="photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required class="sr-only" />
       <div class="preview-grid" id="previewGrid"></div>
 
-      <button class="btn btn-primary btn-block mt-4" type="submit">Publish listing</button>
+      <button class="btn btn-primary btn-block mt-4" type="submit">Submit for Review</button>
     </form>
   </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script src="/js/forms.js"></script>
   <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
     const form = document.getElementById('form');
+    
     Forms.setupFeeCalculator(form, document.getElementById('totalPreview'));
     Forms.setupDropzone({
       input: document.getElementById('photos'),
@@ -112,9 +126,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
