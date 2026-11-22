@@ -5,62 +5,87 @@
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- Typewriter ----------
-  // Language-aware phrases
+  let phrases = [];
+  let phraseIdx = 0;
+  let charIdx = 0;
+  let deleting = false;
+  let typeTimeout = null;
+
   function getPhrases() {
     if (typeof I18n !== 'undefined' && I18n.t) {
-      return [
+      const p = [
         I18n.t('hero.title_typed_1'),
         I18n.t('hero.title_typed_2'),
         I18n.t('hero.title_typed_3'),
         I18n.t('hero.title_typed_4')
-      ].filter(Boolean);
+      ];
+      // If translations failed, fallback to English
+      if (p[0] === 'hero.title_typed_1') {
+        return ['clearer prices.', 'stronger trust signals.', 'transparent fees.', 'real Nigerian homes.'];
+      }
+      return p.filter(Boolean);
     }
-    return [
-      'clearer prices.',
-      'stronger trust signals.',
-      'transparent fees.',
-      'real Nigerian homes.'
-    ];
+    return ['clearer prices.', 'stronger trust signals.', 'transparent fees.', 'real Nigerian homes.'];
   }
-  let phrases = getPhrases();
-  if (typeof I18n !== 'undefined') {
-    I18n.onLanguageChange(() => { phrases = getPhrases(); phraseIdx = 0; charIdx = 0; });
-  }
-  const typedEl = document.getElementById('typedText');
-  if (typedEl && !reduceMotion) {
-    let phraseIdx = 0;
-    let charIdx = 0;
-    let deleting = false;
+
+  function startTypewriter() {
+    const typedEl = document.getElementById('typedText');
+    if (!typedEl) return;
+    
+    clearTimeout(typeTimeout);
+    phrases = getPhrases();
+    phraseIdx = 0;
+    charIdx = 0;
+    deleting = false;
+    typedEl.textContent = '';
+
+    if (reduceMotion) {
+      typedEl.textContent = phrases[0];
+      return;
+    }
+
     const typeSpeed = 65;
     const deleteSpeed = 35;
     const pauseBetween = 1800;
 
     function tick() {
       const current = phrases[phraseIdx];
+      
       if (!deleting) {
         charIdx++;
         typedEl.textContent = current.slice(0, charIdx);
         if (charIdx === current.length) {
           deleting = true;
-          setTimeout(tick, pauseBetween);
+          typeTimeout = setTimeout(tick, pauseBetween);
           return;
         }
-        setTimeout(tick, typeSpeed);
+        typeTimeout = setTimeout(tick, typeSpeed);
       } else {
         charIdx--;
         typedEl.textContent = current.slice(0, charIdx);
         if (charIdx === 0) {
           deleting = false;
           phraseIdx = (phraseIdx + 1) % phrases.length;
-          setTimeout(tick, 400);
+          typeTimeout = setTimeout(tick, 400);
           return;
         }
-        setTimeout(tick, deleteSpeed);
+        typeTimeout = setTimeout(tick, deleteSpeed);
       }
     }
-    setTimeout(tick, 800);
-  } else if (typedEl) {
-    typedEl.textContent = phrases[0];
+    // Start after a small delay
+    typeTimeout = setTimeout(tick, 800);
+  }
+
+  // Start typewriter only after i18n is ready
+  if (typeof I18n !== 'undefined') {
+    I18n.onLanguageChange(() => {
+      // Restart typewriter when language changes
+      startTypewriter();
+    });
+    // Wait a moment for i18n to initialize
+    setTimeout(startTypewriter, 100);
+  } else {
+    startTypewriter();
   }
 
   // ---------- Particles ----------
@@ -122,4 +147,3 @@
     startAuto();
   }
 })();
-
