@@ -229,3 +229,81 @@ body:not(.home) {
   }
 }
 
+
+/* ============================================================
+   Fix: Compact Testimonial Modal
+   ============================================================ */
+.modal.compact-modal {
+  max-width: 420px !important; /* Narrower width */
+  padding: 24px !important;
+}
+
+.modal.compact-modal h3 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+
+.modal.compact-modal .modal-sub {
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.modal.compact-modal .form-group {
+  margin-bottom: 12px; /* Tighter spacing between fields */
+}
+
+.modal.compact-modal .form-group label {
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+}
+
+.modal.compact-modal .form-group input,
+.modal.compact-modal .form-group select,
+.modal.compact-modal .form-group textarea {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.modal.compact-modal .form-group textarea {
+  min-height: 80px; /* Smaller text area */
+  resize: vertical;
+}
+
+.modal.compact-modal .modal-actions {
+  margin-top: 16px;
+}
+
+/* ============================================================
+   Fix: Center Modals & Prevent Top Cut-off
+   ============================================================ */
+
+.modal-backdrop {
+  align-items: center;
+  justify-content: center;
+  padding: 20px; /* Adds a safe gap from the edges */
+  overflow-y: auto; /* Allows scrolling if the modal is taller than the screen */
+}
+
+.modal-backdrop .modal {
+  margin: auto; /* Keeps it perfectly centered */
+  max-height: calc(100vh - 40px); /* Prevents it from touching the top/bottom edges */
+  overflow-y: auto; /* Scrolls inside the modal if content is too long */
+}
+
+/* Specific tweak for the compact review modal to fit desktop screens */
+#testimonialModal .modal {
+  max-width: 480px !important;
+  padding: 24px !important;
+}
+
+#testimonialModal .form-group {
+  margin-bottom: 10px !important;
+}
+
+#testimonialModal textarea {
+  min-height: 70px !important;
+}
+
+#testimonialModal .modal-actions {
+  margin-top: 12px !important;
+}

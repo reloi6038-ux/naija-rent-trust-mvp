@@ -31,6 +31,7 @@ app.use('/api/enquiries', require('./routes/enquiries'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/contacts', require('./routes/contacts'));
+app.use('/api/testimonials', require('./routes/testimonials'));
 app.use('/api/search', require('./routes/search'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/properties/:id/conditions', require('./routes/conditions'));
@@ -56,6 +57,7 @@ app.use(errorHandler);
 })();
 
 module.exports = app;
+
 
 
 

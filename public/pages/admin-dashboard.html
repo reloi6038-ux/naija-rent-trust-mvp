@@ -13,33 +13,24 @@
     @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
     
     .admin-sidebar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: sticky; top: 100px; box-shadow: var(--shadow-sm); }
-    .admin-sidebar a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--ink-700); font-weight: 600; margin-bottom: 4px; transition: all 0.2s; }
-    .admin-sidebar a:hover { background: var(--ink-50); color: var(--brand-500); }
-    .admin-sidebar a.active { background: var(--brand-50); color: var(--brand-500); border-left: 3px solid var(--brand-500); }
+    .admin-sidebar button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 16px; border-radius: 8px; color: var(--ink-700); font-weight: 600; margin-bottom: 4px; transition: all 0.2s; border: none; background: transparent; cursor: pointer; font-size: 1rem; }
+    .admin-sidebar button:hover { background: var(--ink-50); color: var(--brand-500); }
+    .admin-sidebar button.active { background: var(--brand-50); color: var(--brand-500); border-left: 3px solid var(--brand-500); }
     
     @media (max-width: 900px) {
       .admin-sidebar { display: flex; overflow-x: auto; padding: 10px; position: static; white-space: nowrap; }
-      .admin-sidebar a { margin-bottom: 0; border-left: none; border-bottom: 3px solid transparent; }
-      .admin-sidebar a.active { border-left: none; border-bottom-color: var(--brand-500); }
+      .admin-sidebar button { margin-bottom: 0; border-left: none; border-bottom: 3px solid transparent; }
+      .admin-sidebar button.active { border-left: none; border-bottom-color: var(--brand-500); }
     }
 
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .stat-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border-top: 4px solid var(--brand-500); }
-    .stat-box.accent { border-top-color: var(--accent-500); }
-    .stat-box.warn { border-top-color: var(--warn-500); }
-    .stat-box.danger { border-top-color: var(--danger-500); }
-    .stat-box .v { font-size: 2rem; font-weight: 800; color: var(--ink-900); line-height: 1.1; }
-    .stat-box .l { font-size: 0.85rem; color: var(--ink-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 8px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); border-top: 4px solid var(--brand-500); }
+    .stat-box .v { font-size: 1.8rem; font-weight: 800; color: var(--ink-900); }
+    .stat-box .l { font-size: 0.85rem; color: var(--ink-500); font-weight: 600; text-transform: uppercase; margin-top: 6px; }
     
-    .dashboard-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media (max-width: 1024px) { .dashboard-split { grid-template-columns: 1fr; } }
-    
-    .activity-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .activity-card h3 { font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .activity-item { padding: 12px 0; border-bottom: 1px solid var(--ink-100); display: flex; justify-content: space-between; align-items: center; }
-    .activity-item:last-child { border-bottom: none; }
-    .activity-item a { font-weight: 600; color: var(--ink-900); font-size: 0.95rem; }
-    .activity-item .time { font-size: 0.8rem; color: var(--text-muted); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -48,9 +39,7 @@
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
-      <nav class="nav-links" id="navLinks" aria-label="Primary">
-        <a href="/pages/admin-dashboard" class="active">Admin Panel</a>
-      </nav>
+      <nav class="nav-links" id="navLinks" aria-label="Primary"><a href="/pages/admin-dashboard" class="active">Admin Panel</a></nav>
       <div class="nav-actions" id="navActions"></div>
       <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
@@ -59,51 +48,46 @@
 
   <main id="main" class="container section">
     <div class="admin-layout">
-      <!-- Sidebar -->
+      <!-- Sidebar Navigation -->
       <aside class="admin-sidebar">
-        <a href="/pages/admin-dashboard" class="active">📊 Overview</a>
-        <a href="/pages/admin-review">📝 Listing Reviews <span id="pendingBadge" class="pill badge-new" style="margin-left:auto; display:none;">0</span></a>
-        <a href="/pages/reports">🚩 Reports</a>
-        <a href="/pages/verification">✅ Verifications</a>
-        <a href="/pages/contact-messages">✉️ Messages</a>
+        <button data-tab="overview" class="active">📊 Overview</button>
+        <button data-tab="listings">🏠 Manage Listings <span id="pendingBadge" class="pill badge-new" style="margin-left:auto; display:none;">0</span></button>
+        <button data-tab="testimonials">⭐ Testimonials</button>
+        <button data-tab="messages">✉️ Messages</button>
       </aside>
 
-      <!-- Main Content -->
+      <!-- Main Content Area -->
       <div>
-        <div class="flex-between mb-4">
-          <div>
-            <h1 style="margin:0;">Platform Overview</h1>
-            <p class="section-sub" style="margin:4px 0 0;">Real-time statistics and moderation status.</p>
+        <!-- TAB: OVERVIEW -->
+        <div id="tab-overview" class="tab-content active">
+          <h1 style="margin-bottom:24px;">Platform Overview</h1>
+          <div class="stat-grid" id="statsContainer">
+            <div class="skeleton" style="height:100px; border-radius:12px;"></div>
+            <div class="skeleton" style="height:100px; border-radius:12px;"></div>
           </div>
-          <a href="/pages/properties" class="btn btn-ghost btn-sm" target="_blank">View Live Site ↗</a>
         </div>
 
-        <!-- Stats Row -->
-        <div class="stat-grid" id="stats">
-          <div class="skeleton" style="height:100px; border-radius:12px;"></div>
-          <div class="skeleton" style="height:100px; border-radius:12px;"></div>
-          <div class="skeleton" style="height:100px; border-radius:12px;"></div>
+        <!-- TAB: MANAGE LISTINGS -->
+        <div id="tab-listings" class="tab-content">
+          <div class="flex-between mb-4">
+            <h1 style="margin:0;">Manage Listings</h1>
+            <a href="/pages/admin-review" class="btn btn-primary btn-sm">Review Pending</a>
+          </div>
+          <div id="listingsContainer" class="card" style="padding:0; overflow:hidden;">
+            <div class="skeleton" style="height:300px;"></div>
+          </div>
         </div>
 
-        <!-- Priority & Activity Split -->
-        <div class="dashboard-split">
-          <!-- Needs Attention -->
-          <div class="activity-card">
-            <h3>🚨 Needs Attention</h3>
-            <div id="needsAttention">
-              <div class="skeleton" style="height:60px; margin-bottom:8px;"></div>
-              <div class="skeleton" style="height:60px;"></div>
-            </div>
-          </div>
+        <!-- TAB: TESTIMONIALS -->
+        <div id="tab-testimonials" class="tab-content">
+          <h1 style="margin-bottom:24px;">Manage Testimonials</h1>
+          <div id="testimonialsContainer" class="grid grid-2"></div>
+        </div>
 
-          <!-- Recent Activity -->
-          <div class="activity-card">
-            <h3>📋 Recent Reports</h3>
-            <div id="recentReports">
-              <div class="skeleton" style="height:60px; margin-bottom:8px;"></div>
-              <div class="skeleton" style="height:60px;"></div>
-            </div>
-          </div>
+        <!-- TAB: MESSAGES -->
+        <div id="tab-messages" class="tab-content">
+          <h1 style="margin-bottom:24px;">Contact Messages</h1>
+          <div id="messagesContainer"></div>
         </div>
       </div>
     </div>
@@ -122,74 +106,137 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     (async () => { try { await I18n.init(); } catch {} })();
 
+    // Tab Switching Logic
+    document.querySelectorAll('.admin-sidebar button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.admin-sidebar button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // --- 1. Load Overview Stats ---
     (async () => {
       try {
-        const [statsRes, activityRes] = await Promise.all([
-          API.get('/admin/stats'),
-          API.get('/admin/recent-activity')
-        ]);
-        
-        const stats = statsRes.stats;
-        
-        // 1. Render Stats
-        const statMap = [
-          { key: 'published', label: 'Published', class: 'accent' },
-          { key: 'pending', label: 'Pending Review', class: 'warn' },
-          { key: 'openReports', label: 'Open Reports', class: 'danger' },
-          { key: 'enquiries', label: 'Total Enquiries', class: '' }
-        ];
-
-        const el = document.getElementById('stats');
-        el.innerHTML = statMap.map(s => `
-          <div class="stat-box ${s.class}">
-            <div class="v">${stats[s.key] || 0}</div>
-            <div class="l">${s.label}</div>
-          </div>
-        `).join('');
-
-        // 2. Render Pending Badge
+        const { stats } = await API.get('/admin/stats');
+        document.getElementById('statsContainer').innerHTML = `
+          <div class="stat-box"><div class="v">${stats.published}</div><div class="l">Published</div></div>
+          <div class="stat-box" style="border-top-color:var(--warn-500);"><div class="v">${stats.pending}</div><div class="l">Pending Review</div></div>
+          <div class="stat-box" style="border-top-color:var(--danger-500);"><div class="v">${stats.openReports}</div><div class="l">Open Reports</div></div>
+          <div class="stat-box"><div class="v">${stats.enquiries}</div><div class="l">Enquiries</div></div>
+        `;
         if (stats.pending > 0) {
           const badge = document.getElementById('pendingBadge');
           badge.textContent = stats.pending;
           badge.style.display = 'inline-block';
         }
+      } catch { toast('Admin access required', 'error'); window.location.href = '/pages/admin-login'; }
+    })();
 
-        // 3. Render Needs Attention (Pending Listings)
-        const attentionEl = document.getElementById('needsAttention');
-        if (!activityRes.recentPending.length) {
-          attentionEl.innerHTML = '<p class="text-muted" style="margin:0;">All clear! No pending listings.</p>';
-        } else {
-          attentionEl.innerHTML = activityRes.recentPending.map(p => `
-            <div class="activity-item">
-              <div>
-                <a href="/pages/property-details?id=${p._id}" target="_blank">${escapeHtml(p.title)}</a>
-                <div class="time">By ${escapeHtml(p.lister.name)}</div>
-              </div>
-              <a href="/pages/admin-review" class="btn btn-sm btn-primary">Review</a>
+    // --- 2. Load All Listings ---
+    (async () => {
+      try {
+        const { data } = await API.get('/admin/properties');
+        const el = document.getElementById('listingsContainer');
+        if (!data.length) { el.innerHTML = '<p class="text-center" style="padding:40px;">No listings found.</p>'; return; }
+        
+        el.innerHTML = `<div class="table-wrap"><table class="table">
+          <thead><tr><th>Property</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${data.map(p => `
+              <tr>
+                <td>
+                  <strong>${escapeHtml(p.title)}</strong><br>
+                  <span class="text-muted" style="font-size:.85rem;">${escapeHtml(p.area)}, ${escapeHtml(p.state)}</span>
+                </td>
+                <td><span class="pill badge-${p.status.toLowerCase()}">${p.status}</span></td>
+                <td style="white-space:nowrap;">
+                  <a href="/pages/property-details?id=${p._id}" target="_blank" class="btn btn-sm btn-ghost" title="View">👁️</a>
+                  <a href="/pages/edit-listing?id=${p._id}" class="btn btn-sm btn-ghost" title="Edit">✏️</a>
+                  ${p.status !== 'Unpublished' ? `<button class="btn btn-sm btn-ghost" data-unpub="${p._id}" title="Unpublish">🚫</button>` : ''}
+                  <button class="btn btn-sm btn-ghost" style="color:var(--danger-500);" data-delete="${p._id}" title="Delete">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>`;
+
+        // Wire Delete & Unpublish
+        el.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
+          if (!confirm('Are you sure? This will permanently delete the listing.')) return;
+          await API.del('/admin/properties/' + b.dataset.delete);
+          toast('Listing deleted', 'success'); setTimeout(() => location.reload(), 500);
+        });
+        el.querySelectorAll('[data-unpub]').forEach(b => b.onclick = async () => {
+          if (!confirm('Unpublish this listing?')) return;
+          await API.patch('/admin/properties/' + b.dataset.unpub + '/unpublish', { adminNote: 'Unpublished by admin' });
+          toast('Listing unpublished', 'success'); setTimeout(() => location.reload(), 500);
+        });
+
+      } catch { document.getElementById('listingsContainer').innerHTML = 'Error loading listings.'; }
+    })();
+
+    // --- 3. Load Testimonials ---
+    (async () => {
+      try {
+        const { data } = await API.get('/testimonials/admin');
+        const el = document.getElementById('testimonialsContainer');
+        if (!data.length) { el.innerHTML = '<p class="text-muted" style="grid-column:1/-1;">No testimonials submitted yet.</p>'; return; }
+        
+        el.innerHTML = data.map(t => `
+          <div class="card" style="padding:20px; border-left: 4px solid ${t.status === 'Approved' ? 'var(--accent-500)' : t.status === 'Rejected' ? 'var(--danger-500)' : 'var(--warn-500)'};">
+            <div class="flex-between mb-2">
+              <strong>${escapeHtml(t.name)}</strong>
+              <span class="pill badge-${t.status.toLowerCase()}">${t.status}</span>
             </div>
-          `).join('');
-        }
-
-        // 4. Render Recent Reports
-        const reportsEl = document.getElementById('recentReports');
-        if (!activityRes.recentReports.length) {
-          reportsEl.innerHTML = '<p class="text-muted" style="margin:0;">No open reports. Good job!</p>';
-        } else {
-          reportsEl.innerHTML = activityRes.recentReports.map(r => `
-            <div class="activity-item">
-              <div>
-                <a href="/pages/property-details?id=${r.property?._id}" target="_blank">${escapeHtml(r.property?.title || 'Deleted Listing')}</a>
-                <div class="time">${escapeHtml(r.reason)}</div>
+            <div style="color:var(--warn-500); font-size:.9rem; margin-bottom:8px;">${'⭐'.repeat(t.rating)}</div>
+            <p style="font-size:.9rem; color:var(--ink-700); font-style:italic;">"${escapeHtml(t.quote)}"</p>
+            ${t.status === 'Pending' ? `
+              <div class="flex gap-2 mt-3">
+                <button class="btn btn-sm btn-primary" data-approve="${t._id}">Approve</button>
+                <button class="btn btn-sm btn-ghost" data-reject="${t._id}">Reject</button>
               </div>
-              <a href="/pages/reports" class="btn btn-sm btn-ghost">View</a>
-            </div>
-          `).join('');
-        }
+            ` : ''}
+          </div>
+        `).join('');
 
-      } catch (e) {
-        toast('Admin access required', 'error'); 
-        window.location.href = '/pages/admin-login';
-      }
+        el.querySelectorAll('[data-approve]').forEach(b => b.onclick = async () => {
+          await API.patch('/testimonials/' + b.dataset.approve + '/status', { status: 'Approved' });
+          toast('Approved', 'success'); setTimeout(() => location.reload(), 500);
+        });
+        el.querySelectorAll('[data-reject]').forEach(b => b.onclick = async () => {
+          await API.patch('/testimonials/' + b.dataset.reject + '/status', { status: 'Rejected' });
+          toast('Rejected', 'success'); setTimeout(() => location.reload(), 500);
+        });
+      } catch {}
+    })();
+
+    // --- 4. Load Messages ---
+    (async () => {
+      try {
+        const { data } = await API.get('/contacts');
+        const el = document.getElementById('messagesContainer');
+        if (!data.length) { el.innerHTML = '<p class="text-muted">No messages yet.</p>'; return; }
+        
+        el.innerHTML = data.map(m => `
+          <div class="card mb-3" style="padding:20px; border-left: 4px solid ${m.status === 'New' ? 'var(--brand-500)' : 'var(--border)'};">
+            <div class="flex-between mb-2">
+              <strong style="font-size:1.1rem;">${escapeHtml(m.subject)}</strong>
+              <span class="pill ${m.status === 'New' ? 'badge-new' : ''}">${m.status}</span>
+            </div>
+            <div class="text-muted mb-2" style="font-size:.9rem;">From: ${escapeHtml(m.name)} &lt;${escapeHtml(m.email)}&gt;</div>
+            <p style="background:var(--ink-50); padding:12px; border-radius:8px; font-size:.95rem;">${escapeHtml(m.message)}</p>
+            ${m.status === 'New' ? `<button class="btn btn-sm btn-ghost" data-read="${m._id}">Mark as Read</button>` : ''}
+            <a href="mailto:${escapeHtml(m.email)}?subject=Re: ${escapeHtml(m.subject)}" class="btn btn-sm btn-primary" style="margin-left:8px;">Reply</a>
+          </div>
+        `).join('');
+
+        el.querySelectorAll('[data-read]').forEach(b => b.onclick = async () => {
+          await API.patch('/contacts/' + b.dataset.read + '/read', {});
+          toast('Marked as read', 'success'); setTimeout(() => location.reload(), 500);
+        });
+      } catch {}
     })();
   </script>
 </body>

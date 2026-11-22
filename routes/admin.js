@@ -13,6 +13,8 @@ router.patch('/properties/:id/approve', prop.adminApprove);
 router.patch('/properties/:id/reject', prop.adminReject);
 router.patch('/properties/:id/unpublish', prop.adminUnpublish);
 router.patch('/properties/:id/restore', prop.adminRestore);
+router.delete('/properties/:id', prop.adminDelete);
 
 module.exports = router;
+
 

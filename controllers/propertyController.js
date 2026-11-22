@@ -263,3 +263,11 @@ exports.adminRestore = async (req, res, next) => {
 };
 
 
+
+exports.adminDelete = async (req, res, next) => {
+  try {
+    const p = await Property.findByIdAndDelete(req.params.id);
+    if (!p) return res.status(404).json({ success: false, message: 'Not found' });
+    res.json({ success: true, message: 'Listing permanently deleted' });
+  } catch (e) { next(e); }
+};

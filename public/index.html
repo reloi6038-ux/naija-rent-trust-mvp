@@ -6,56 +6,54 @@
   <title>NaijaRent — Find a home with clearer prices and stronger trust signals</title>
   <meta name="description" content="Nigerian rental marketplace with transparent pricing, published fee breakdowns, and human-reviewed listings." />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <style>
+    /* Force the testimonial modal to be compact */
+    #testimonialModal .modal {
+      max-width: 440px;
+      padding: 24px;
+    }
+    #testimonialModal .form-group {
+      margin-bottom: 12px;
+    }
+    #testimonialModal textarea {
+      min-height: 80px;
+    }
+  </style>
 </head>
 <body class="home" data-i18n-title-key="meta.home_title">
   <a class="skip-link" href="#main">Skip to main content</a>
-
-  <!-- Animated particles layer -->
   <div class="particles" id="particles" aria-hidden="true"></div>
 
   <header class="nav" role="banner">
     <div class="container nav-inner">
-      <a class="brand" href="/">
-        <img src="/images/logo-mark.svg" alt="" width="32" height="32" />
-        Naija<em>Rent</em>
-      </a>
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
       <nav class="nav-links" id="navLinks" aria-label="Primary">
         <a href="/pages/properties" data-i18n="nav.browse">Browse rentals</a>
         <a href="/pages/map" data-i18n="nav.map">Map view</a>
         <a href="/pages/trust" data-i18n="nav.trust">Trust & Safety</a>
         <a href="/pages/about" data-i18n="nav.about">About</a>
       </nav>
-      <div class="nav-actions" id="navActions">
-        <!-- Filled by ui.js based on auth state -->
-      </div>
+      <div class="nav-actions" id="navActions"></div>
       <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
 
   <main id="main">
-    <!-- ============ HERO ============ -->
+    <!-- HERO -->
     <section class="hero-premium">
       <div class="container">
         <div class="hero-card" data-reveal="scale">
           <div class="hero-card-inner">
             <div class="hero-eyebrow" data-i18n="hero.badge">Human-reviewed listings · not a guarantee</div>
-
             <h1 class="hero-h1">
               <span class="static" data-i18n="hero.title_line1">Find a home with</span>
               <span class="typed" id="typedText"></span><span class="cursor" aria-hidden="true"></span>
             </h1>
-
-            <p class="hero-sub" data-i18n="hero.sub">
-              Transparent annual rents. Published fee breakdowns. Human-reviewed listings.
-              Built for renters across Nigeria — lightweight, fast, and honest.
-            </p>
-
+            <p class="hero-sub" data-i18n="hero.sub">Transparent annual rents. Published fee breakdowns. Human-reviewed listings. Built for renters across Nigeria — lightweight, fast, and honest.</p>
             <form class="search-premium" id="heroSearch" role="search" aria-label="Search rentals">
               <div class="field">
                 <label for="heroState" data-i18n="hero.search_state">State</label>
@@ -69,31 +67,19 @@
                 <label for="heroMax" data-i18n="hero.search_max_rent">Max rent (₦)</label>
                 <input id="heroMax" name="maxRent" type="number" placeholder="1,500,000" />
               </div>
-              <button class="btn" type="submit">
-                <span data-i18n="hero.search_button">Search rentals</span> →
-              </button>
+              <button class="btn" type="submit"><span data-i18n="hero.search_button">Search rentals</span> →</button>
             </form>
-
             <div class="hero-metrics">
-              <div class="metric">
-                <div class="v"><span data-counter="15">0</span>+</div>
-                <div class="l" data-i18n="hero.metric_listings">Live listings</div>
-              </div>
-              <div class="metric">
-                <div class="v"><span data-counter="6">0</span></div>
-                <div class="l" data-i18n="hero.metric_states">States covered</div>
-              </div>
-              <div class="metric">
-                <div class="v"><span data-counter="100">0</span>%</div>
-                <div class="l" data-i18n="hero.metric_transparent">Transparent fees</div>
-              </div>
+              <div class="metric"><div class="v"><span data-counter="15">0</span>+</div><div class="l" data-i18n="hero.metric_listings">Live listings</div></div>
+              <div class="metric"><div class="v"><span data-counter="6">0</span></div><div class="l" data-i18n="hero.metric_states">States covered</div></div>
+              <div class="metric"><div class="v"><span data-counter="100">0</span>%</div><div class="l" data-i18n="hero.metric_transparent">Transparent fees</div></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ TRUST RIBBON ============ -->
+    <!-- TRUST RIBBON -->
     <div class="trust-ribbon" aria-hidden="true">
       <div class="trust-track">
         <span class="trust-item">Transparent fee breakdowns</span>
@@ -104,7 +90,6 @@
         <span class="trust-item">Mobile-first design</span>
         <span class="trust-item">NDPR-aligned privacy</span>
         <span class="trust-item">Naira pricing</span>
-        <!-- duplicate for seamless loop -->
         <span class="trust-item">Transparent fee breakdowns</span>
         <span class="trust-item">Human-reviewed listings</span>
         <span class="trust-item">No renter account needed</span>
@@ -116,89 +101,39 @@
       </div>
     </div>
 
-    <!-- ============ FEATURES ============ -->
+    <!-- FEATURES -->
     <section class="section-premium" data-reveal>
       <div class="container">
         <div class="eyebrow" data-i18n="sections.features_eyebrow">Why NaijaRent</div>
         <h2 data-i18n="sections.features_title">Built for the way Nigeria actually rents</h2>
         <p class="section-sub" data-i18n="sections.features_sub">No fake trust badges. No hidden fees. No account required to browse.</p>
-
         <div class="feature-grid" data-stagger>
           <article class="feature-card">
             <div class="feature-icon">🔍</div>
             <h3 data-i18n="features.reviewed_title">Human-reviewed listings</h3>
-            <p data-i18n="features.reviewed_desc">Every listing is manually checked by our team before going live. You see a real review date — not a fake "verified" badge.</p>
+            <p data-i18n="features.reviewed_desc">Every listing is manually checked by our team before going live.</p>
           </article>
-
           <article class="feature-card">
             <div class="feature-icon">💸</div>
             <h3 data-i18n="features.transparent_title">Transparent fee breakdowns</h3>
-            <p data-i18n="features.transparent_desc">See annual rent, agency fee, legal fee, caution deposit, and total move-in cost — all in Naira, all on the listing.</p>
+            <p data-i18n="features.transparent_desc">See annual rent, agency fee, legal fee, caution deposit, and total move-in cost.</p>
           </article>
-
           <article class="feature-card">
             <div class="feature-icon">📱</div>
             <h3 data-i18n="features.lowdata_title">Low-data friendly</h3>
-            <p data-i18n="features.lowdata_desc">Optimized WebP images, lazy loading, and a lean UI. Built to load fast on cheap smartphones and unstable networks.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">🚩</div>
-            <h3 data-i18n="features.report_title">Report in one tap</h3>
-            <p data-i18n="features.report_desc">Fake listing? Wrong price? Suspicious agent? Report directly from any property page. Reports go to a real moderation queue.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">🔒</div>
-            <h3 data-i18n="features.privacy_title">Privacy-first</h3>
-            <p data-i18n="features.privacy_desc">No renter account needed. No tracking scripts. NDPR-aligned data handling with a clear privacy policy.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3 data-i18n="features.fast_title">Fast & lightweight</h3>
-            <p data-i18n="features.fast_desc">Vanilla JS. No framework. No 3MB bundle. Pages load in under a second on 3G.</p>
+            <p data-i18n="features.lowdata_desc">Optimized WebP images, lazy loading, and a lean UI.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- ============ HOW IT WORKS ============ -->
-    <section class="section-premium" data-reveal>
-      <div class="container">
-        <div class="eyebrow" data-i18n="sections.how_eyebrow">How it works</div>
-        <h2 data-i18n="sections.how_title">Three steps. No signup required.</h2>
-        <p class="section-sub" data-i18n="sections.how_sub">Whether you're a renter or a lister, we've kept it simple.</p>
-
-        <div class="steps" data-stagger>
-          <div class="step-card">
-            <div class="step-num">1</div>
-            <h3 data-i18n="steps.step1_title">Search</h3>
-            <p data-i18n="steps.step1_desc">Filter by state, area, budget, and property type. See real listings from real listers.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">2</div>
-            <h3 data-i18n="steps.step2_title">Compare</h3>
-            <p data-i18n="steps.step2_desc">Review the transparent fee breakdown. See exactly what you'll pay at move-in — no surprises.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num">3</div>
-            <h3 data-i18n="steps.step3_title">Enquire</h3>
-            <p data-i18n="steps.step3_desc">Send an enquiry with an inspection date. The lister gets notified by email. No account needed.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ FEATURED LISTINGS ============ -->
+    <!-- FEATURED LISTINGS -->
     <section class="section-premium" data-reveal>
       <div class="container">
         <div class="eyebrow" data-i18n="sections.listings_eyebrow">Fresh listings</div>
         <h2 data-i18n="sections.listings_title">Recently added homes</h2>
         <p class="section-sub" data-i18n="sections.listings_sub">A sample of live listings. All renters see the same transparent pricing.</p>
-
         <div class="grid grid-3" id="featured"></div>
-
         <div style="text-align:center; margin-top:42px;">
           <a class="btn btn-ghost" style="color:#e2e8f0; border-color:rgba(148,163,184,.3);" href="/pages/properties">
             <span data-i18n="sections.listings_view_all">View all listings</span> →
@@ -207,96 +142,113 @@
       </div>
     </section>
 
-    <!-- ============ TESTIMONIALS ============ -->
+    <!-- DYNAMIC TESTIMONIALS -->
     <section class="section-premium" data-reveal>
       <div class="container">
-        <div class="eyebrow">From renters</div>
-        <h2>What people are saying</h2>
-        <p class="section-sub">Demonstration testimonials for this MVP. Real reviews will appear here after launch.</p>
-
-        <div class="testimonial-stage">
-          <div class="testimonial active">
-            <blockquote>I finally understood what move-in cost meant. No more guessing whether agency fee was included.</blockquote>
-            <div class="testimonial-author">
-              <div class="avatar">A</div>
-              <div><strong>Adaeze</strong> · Renter, Lagos</div>
-            </div>
+        <div class="flex-between mb-4" style="align-items:flex-end; flex-wrap:wrap; gap:16px;">
+          <div>
+            <div class="eyebrow">From renters</div>
+            <h2>What people are saying</h2>
+            <p class="section-sub" style="margin:0;">Real experiences from renters who used the platform.</p>
           </div>
-          <div class="testimonial">
-            <blockquote>The fee breakdown alone saved me from two properties that were hiding extra charges.</blockquote>
-            <div class="testimonial-author">
-              <div class="avatar">C</div>
-              <div><strong>Chinedu</strong> · Renter, Abuja</div>
-            </div>
-          </div>
-          <div class="testimonial">
-            <blockquote>As a lister, I love that every listing gets reviewed. It makes the platform feel serious.</blockquote>
-            <div class="testimonial-author">
-              <div class="avatar">F</div>
-              <div><strong>Funmi</strong> · Lister, Port Harcourt</div>
-            </div>
-          </div>
+          <button class="btn btn-primary" onclick="document.getElementById('testimonialModal').classList.add('open')">Leave a Review</button>
         </div>
-        <div class="testimonial-dots" aria-label="Testimonial navigation">
-          <button class="testimonial-dot active" aria-label="Testimonial 1"></button>
-          <button class="testimonial-dot" aria-label="Testimonial 2"></button>
-          <button class="testimonial-dot" aria-label="Testimonial 3"></button>
+
+        <div class="grid grid-3" id="testimonialsContainer">
+          <div class="skeleton" style="height:200px; border-radius:14px;"></div>
+          <div class="skeleton" style="height:200px; border-radius:14px;"></div>
+          <div class="skeleton" style="height:200px; border-radius:14px;"></div>
         </div>
       </div>
     </section>
 
-    <!-- ============ CTA ============ -->
-    <section class="section-premium">
-      <div class="container">
-        <div class="cta-premium" data-reveal="scale">
-          <h2 data-i18n="sections.cta_title">List your property in minutes.</h2>
-          <p data-i18n="sections.cta_sub">Reach thousands of renters across Nigeria. Publish a property, get an enquiry in the same day.</p>
-          <a class="btn" href="/pages/register" data-i18n="sections.cta_button">Get started →</a>
-        </div>
+    <!-- CONTACT FORM -->
+    <section class="section-premium" data-reveal>
+      <div class="container" style="max-width:700px;">
+        <div class="eyebrow">Support</div>
+        <h2>Get in touch</h2>
+        <p class="section-sub">Questions about a listing, account, or reporting suspicious activity? We're here to help.</p>
+        
+        <form id="contactForm" class="card" style="padding:32px;">
+          <div class="form-row">
+            <div class="form-group"><label>Your Name</label><input name="name" required placeholder="John Doe" /></div>
+            <div class="form-group"><label>Email</label><input name="email" type="email" required placeholder="you@example.com" /></div>
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <select name="subject" required>
+              <option value="">Choose a topic…</option>
+              <option>General Enquiry</option><option>Report a Listing</option><option>Account Issue</option><option>Technical Bug</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Message</label><textarea name="message" required style="min-height:120px;" placeholder="How can we help you?"></textarea></div>
+          <button class="btn btn-primary btn-block" type="submit">Send Message</button>
+        </form>
       </div>
     </section>
   </main>
 
-  <!-- ============ FOOTER ============ -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div>
           <div class="brand"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></div>
-          <p data-i18n="footer.tagline">Nigerian rental marketplace with transparent pricing and human-reviewed listings. Not a verification service — always inspect in person before paying.</p>
+          <p data-i18n="footer.tagline">Nigerian rental marketplace with transparent pricing and human-reviewed listings.</p>
         </div>
         <div>
-          <h4 data-i18n="footer.renters">Renters</h4>
-          <ul>
-            <li><a href="/pages/properties" data-i18n="nav.browse">Browse rentals</a></li>
-            <li><a href="/pages/map" data-i18n="nav.map">Map view</a></li>
-            <li><a href="/pages/trust" data-i18n="nav.trust">Trust & Safety</a></li>
-          </ul>
+          <h4>Renters</h4>
+          <ul><li><a href="/pages/properties">Browse rentals</a></li><li><a href="/pages/map">Map view</a></li><li><a href="/pages/trust">Trust & Safety</a></li></ul>
         </div>
         <div>
-          <h4 data-i18n="footer.listers">Listers</h4>
-          <ul>
-            <li><a href="/pages/register" data-i18n="nav.register">Post a property</a></li>
-            <li><a href="/pages/login" data-i18n="nav.login">Sign in</a></li>
-          </ul>
+          <h4>Listers</h4>
+          <ul><li><a href="/pages/register">Post a property</a></li><li><a href="/pages/login">Sign in</a></li></ul>
         </div>
         <div>
-          <h4 data-i18n="footer.legal">Legal</h4>
-          <ul>
-            <li><a href="/pages/terms" data-i18n="footer.terms">Terms of Service</a></li>
-            <li><a href="/pages/privacy" data-i18n="footer.privacy">Privacy Policy</a></li>
-            <li><a href="/pages/cookies" data-i18n="footer.cookies">Cookie Policy</a></li>
-            <li><a href="/pages/refunds" data-i18n="footer.refunds">Refunds</a></li>
-          </ul>
+          <h4>Legal</h4>
+          <ul><li><a href="/pages/terms">Terms</a></li><li><a href="/pages/privacy">Privacy</a></li><li><a href="/pages/cookies">Cookies</a></li></ul>
         </div>
       </div>
-      <div class="footer-bottom">
-        © <span id="year"></span> <span data-i18n="footer.copyright">NaijaRent · Built for Nigeria · Human-reviewed listings are not a guarantee of ownership</span>
-      </div>
+      <div class="footer-bottom">© <span id="year"></span> NaijaRent</div>
     </div>
   </footer>
 
-  <!-- ============ SCRIPTS ============ -->
+  <!-- Testimonial Modal (Compact) -->
+  <div class="modal-backdrop" id="testimonialModal" role="dialog" aria-modal="true">
+    <div class="modal" style="max-width: 440px; padding: 24px;">
+      <h3 style="margin-bottom:4px;">Leave a Review</h3>
+      <p class="modal-sub" style="margin-bottom:16px;">Share your experience. Reviews are published after admin approval.</p>
+      
+      <form id="testimonialForm">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Your Name</label>
+          <input name="name" required placeholder="e.g. Jane Doe" />
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Location (Optional)</label>
+          <input name="location" placeholder="e.g. Lagos" />
+        </div>
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label>Rating</label>
+          <select name="rating">
+            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="4">⭐⭐⭐⭐ Good</option>
+            <option value="3">⭐⭐⭐ Average</option>
+            <option value="2">⭐⭐ Poor</option>
+            <option value="1">⭐ Terrible</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>Your Experience</label>
+          <textarea name="quote" required maxlength="500" style="min-height:80px;" placeholder="Tell us what you think..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" type="button" onclick="document.getElementById('testimonialModal').classList.remove('open')">Cancel</button>
+          <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/compare.js"></script>
@@ -306,51 +258,73 @@
   <script src="/js/home.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
 
-    // Initialize i18n
-    (async () => {
-      try {
-        await I18n.init();
-      } catch (err) {
-        console.warn('[i18n] failed to load:', err);
-      }
-    })();
-
-    // Search form submission
-    document.getElementById('heroSearch').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const f = new FormData(e.target);
-      const q = new URLSearchParams();
-      ['state', 'area', 'maxRent'].forEach((k) => { if (f.get(k)) q.set(k, f.get(k)); });
-      window.location.href = '/pages/properties?' + q.toString();
-    });
-
-    // Load featured listings
+    // 1. Load Featured Listings
     (async () => {
       const grid = document.getElementById('featured');
-      for (let i = 0; i < 3; i++) grid.appendChild(Components.skeletonCard());
       try {
         const { data } = await API.get('/properties?limit=3&sort=newest');
         grid.innerHTML = '';
         if (!data.length) {
-          grid.appendChild(Components.empty({
-            icon: '/images/empty-listings.svg',
-            title: 'No listings yet',
-            message: 'Check back soon — or browse all rentals.',
-            actionHtml: '<a class="btn btn-ghost" style="color:#e2e8f0;border-color:rgba(148,163,184,.3);" href="/pages/properties">Browse rentals</a>'
-          }));
+          grid.innerHTML = '<p class="text-muted">No listings yet.</p>';
         } else {
           data.forEach((p) => grid.appendChild(Components.propertyCard(p)));
         }
-      } catch {
-        grid.innerHTML = '';
-        grid.appendChild(Components.empty({
-          icon: '/images/empty-search.svg',
-          title: 'Could not load listings',
-          message: 'Please refresh the page.'
-        }));
-      }
+      } catch { grid.innerHTML = '<p class="text-muted">Could not load listings.</p>'; }
     })();
+
+    // 2. Load Testimonials
+    (async () => {
+      const container = document.getElementById('testimonialsContainer');
+      try {
+        const { data } = await API.get('/testimonials');
+        container.innerHTML = '';
+        if (!data.length) {
+          container.innerHTML = '<p class="text-muted" style="grid-column:1/-1;">No reviews yet. Be the first to leave one!</p>';
+          return;
+        }
+        data.forEach(t => {
+          const stars = '⭐'.repeat(t.rating);
+          container.innerHTML += `
+            <div class="card" style="padding:24px; display:flex; flex-direction:column;">
+              <div style="color:var(--warn-500); margin-bottom:12px;">${stars}</div>
+              <p style="flex:1; font-size:.95rem; color:var(--ink-700); line-height:1.6;">"${escapeHtml(t.quote)}"</p>
+              <div class="flex items-center gap-2 mt-3">
+                <div class="avatar" style="width:32px;height:32px;font-size:.85rem;">${escapeHtml(t.name[0])}</div>
+                <div>
+                  <div style="font-weight:700; font-size:.9rem;">${escapeHtml(t.name)}</div>
+                  <div class="text-muted" style="font-size:.8rem;">${escapeHtml(t.location || 'Renter')}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      } catch { container.innerHTML = '<p class="text-muted">Could not load reviews.</p>'; }
+    })();
+
+    // 3. Handle Forms
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      try {
+        await API.post('/contacts', Object.fromEntries(new FormData(e.target)));
+        toast('Message sent successfully! We will reply shortly.', 'success');
+        e.target.reset();
+      } catch (err) { toast(err.message, 'error'); }
+      finally { btn.disabled = false; btn.textContent = 'Send Message'; }
+    });
+
+    document.getElementById('testimonialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await API.post('/testimonials', Object.fromEntries(new FormData(e.target)));
+        toast('Review submitted! It will appear after admin approval.', 'success');
+        document.getElementById('testimonialModal').classList.remove('open');
+        e.target.reset();
+      } catch (err) { toast(err.message, 'error'); }
+    });
   </script>
 </body>
 </html>

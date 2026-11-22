@@ -3,61 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Edit Listing — NaijaRent & Trust</title>
+  <title>Edit Listing — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-  <link rel="apple-touch-icon" href="/favicon-180.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="stylesheet" href="/css/style.css" />`n  <link rel="stylesheet" href="/css/pages.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
   <header class="nav" role="banner">
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary">
+        <a href="/pages/lister-dashboard">Dashboard</a>
+        <a href="/pages/create-listing">+ New Listing</a>
+      </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
+
   <main id="main" class="container section" style="max-width:820px;">
-    <div class="section-head">
+    <div class="page-header" style="background: transparent; padding: 0; margin-bottom: 24px;">
       <div class="eyebrow">Edit</div>
-      <h1>Update listing</h1>
-      <p class="section-sub">Edit details and save your changes.</p>
+      <h1 style="margin:0;">Update listing</h1>
+      <p class="section-sub" style="margin:4px 0 0;">Edit details and save your changes.</p>
     </div>
 
     <form id="form" class="card" style="padding:30px;" enctype="multipart/form-data" novalidate>
+      <div class="divider-label">Basic information</div>
       <div class="form-group"><label for="title">Title</label><input id="title" name="title" required maxlength="140" /></div>
       <div class="form-row">
         <div class="form-group">
           <label for="propertyType">Property type</label>
           <select id="propertyType" name="propertyType" required>
+            <option value="">Choose…</option>
             <option>Self Contain</option><option>Mini Flat</option><option>Flat</option>
             <option>Duplex</option><option>Detached House</option><option>Terraced House</option>
           </select>
         </div>
         <div class="form-group">
           <label for="listerType">I am a…</label>
-          <select id="listerType" name="listerType"><option value="agent">Agent</option><option value="landlord">Landlord</option></select>
+          <select id="listerType" name="listerType">
+            <option value="agent">Agent</option><option value="landlord">Landlord</option>
+          </select>
         </div>
       </div>
+
+      <div class="divider-label">Location</div>
       <div class="form-row">
         <div class="form-group"><label for="state">State</label><input id="state" name="state" required /></div>
         <div class="form-group"><label for="area">Area</label><input id="area" name="area" required /></div>
       </div>
       <div class="form-group"><label for="address">Address / landmark</label><input id="address" name="address" /></div>
+
+      <div class="divider-label">Property details</div>
       <div class="form-row">
         <div class="form-group"><label for="bedrooms">Bedrooms</label><input id="bedrooms" name="bedrooms" type="number" min="0" required /></div>
         <div class="form-group"><label for="bathrooms">Bathrooms</label><input id="bathrooms" name="bathrooms" type="number" min="0" required /></div>
       </div>
+
+      <div class="divider-label">Pricing & fees</div>
       <div class="form-row">
-        <div class="form-group"><label for="annualRent">Annual rent (₦)</label><input id="annualRent" name="annualRent" type="number" required /></div>
-        <div class="form-group"><label for="agencyFee">Agency fee (₦)</label><input id="agencyFee" name="agencyFee" type="number" /></div>
+        <div class="form-group"><label for="annualRent">Annual rent (₦)</label><input id="annualRent" name="annualRent" type="number" min="0" required /></div>
+        <div class="form-group"><label for="agencyFee">Agency fee (₦)</label><input id="agencyFee" name="agencyFee" type="number" min="0" /></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label for="legalFee">Legal fee (₦)</label><input id="legalFee" name="legalFee" type="number" /></div>
-        <div class="form-group"><label for="cautionDeposit">Caution deposit (₦)</label><input id="cautionDeposit" name="cautionDeposit" type="number" /></div>
+        <div class="form-group"><label for="legalFee">Legal fee (₦)</label><input id="legalFee" name="legalFee" type="number" min="0" /></div>
+        <div class="form-group"><label for="cautionDeposit">Caution deposit (₦)</label><input id="cautionDeposit" name="cautionDeposit" type="number" min="0" /></div>
       </div>
-      <div class="pill pill-brand" id="totalPreview">Estimated total move-in: ₦0</div>
-      <div class="form-group mt-3"><label for="description">Description</label><textarea id="description" name="description" required></textarea></div>
+      <div class="pill pill-brand" id="totalPreview" style="font-size:1rem; padding:10px 16px;">Estimated total move-in: ₦0</div>
+
+      <div class="divider-label">Description</div>
+      <div class="form-group"><label for="description">Description</label><textarea id="description" name="description" required></textarea></div>
       <div class="form-group"><label for="amenities">Amenities (comma separated)</label><input id="amenities" name="amenities" /></div>
 
       <div class="divider-label">Replace photos (optional)</div>
@@ -71,14 +91,24 @@
       <button class="btn btn-primary btn-block mt-4" type="submit">Save changes</button>
     </form>
   </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent</div></div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script src="/js/forms.js"></script>
   <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
+
     const id = new URLSearchParams(location.search).get('id');
     const form = document.getElementById('form');
+    
     Forms.setupFeeCalculator(form, document.getElementById('totalPreview'));
     Forms.setupDropzone({
       input: document.getElementById('photos'),
@@ -98,7 +128,8 @@
           annualRent: p.annualRent, agencyFee: p.agencyFee, legalFee: p.legalFee, cautionDeposit: p.cautionDeposit,
           description: p.description, amenities: (p.amenities || []).join(', ')
         }).forEach(([k, v]) => { if (form.elements[k]) form.elements[k].value = v; });
-        // recalc
+        
+        // Recalculate total on load
         form.elements['annualRent'].dispatchEvent(new Event('input'));
       } catch (e) { toast(e.message, 'error'); }
     })();
@@ -106,18 +137,19 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!Forms.validate(form)) return;
+      
       const fd = new FormData(form);
-      for (const [k, v] of [...fd.entries()]) if (v === '' || (v instanceof File && !v.size)) fd.delete(k);
+      // Remove empty fields so we don't overwrite with blanks unnecessarily
+      for (const [k, v] of [...fd.entries()]) {
+        if (v === '' || (v instanceof File && !v.size)) fd.delete(k);
+      }
+      
       try {
         await API.upload('/properties/' + id, fd, 'PATCH');
-        toast('Saved', 'success');
+        toast('Saved successfully', 'success');
         setTimeout(() => window.location.href = '/pages/lister-dashboard', 700);
       } catch (err) { toast(err.message, 'error'); }
     });
   </script>
 </body>
 </html>
-
-
-
-
