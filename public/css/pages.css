@@ -171,3 +171,61 @@ body:not(.home) {
     max-width: 100% !important;
   }
 }
+
+
+
+/* Mobile: Unstick the card and ensure full stacking */
+@media (max-width: 900px) {
+  .dash {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* Adds space between main content and sidebar */
+  }
+
+  .sticky-card {
+    position: static !important; /* Remove sticky positioning on mobile */
+    margin-top: 16px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Ensure the aside container doesn't overlap */
+  aside {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Push the disclaimer safely below the card */
+  .disclaimer {
+    position: relative;
+    z-index: 10; /* Keeps it visible */
+    margin-top: 12px;
+    clear: both;
+  }
+
+  /* Ensure buttons are full width on small screens */
+  .sticky-card .btn {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+
+
+  .sticky-card {
+    position: sticky;
+    top: 100px; /* Header offset */
+    z-index: 10;
+    background: var(--bg-elev);
+    /* Ensure the card doesn't cover the notice by giving it a solid background */
+  }
+
+  /* The safety notice simply sits below the card */
+  .disclaimer {
+    position: relative;
+    z-index: 1; 
+    margin-top: 16px !important;
+  }
+}
+
