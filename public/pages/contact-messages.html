@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact Messages — NaijaRent Admin</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/home.css" />
+  <link rel="stylesheet" href="/css/pages.css" />
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: start; }
+    @media (max-width: 900px) { .admin-layout { grid-template-columns: 1fr; } }
+    .admin-sidebar { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; position: sticky; top: 100px; box-shadow: var(--shadow-sm); }
+    .admin-sidebar a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; color: var(--ink-700); font-weight: 600; margin-bottom: 4px; transition: all 0.2s; }
+    .admin-sidebar a:hover { background: var(--ink-50); color: var(--brand-500); }
+    .admin-sidebar a.active { background: var(--brand-50); color: var(--brand-500); border-left: 3px solid var(--brand-500); }
+    @media (max-width: 900px) {
+      .admin-sidebar { display: flex; overflow-x: auto; padding: 10px; position: static; white-space: nowrap; }
+      .admin-sidebar a { margin-bottom: 0; border-left: none; border-bottom: 3px solid transparent; }
+      .admin-sidebar a.active { border-left: none; border-bottom-color: var(--brand-500); }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><img src="/images/logo-mark.svg" alt="" width="32" height="32" /> Naija<em>Rent</em></a>
+      <nav class="nav-links" id="navLinks" aria-label="Primary"><a href="/pages/admin-dashboard" class="active">Admin Panel</a></nav>
+      <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main id="main" class="container section">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <a href="/pages/admin-dashboard">📊 Overview</a>
+        <a href="/pages/admin-review">📝 Listing Reviews</a>
+        <a href="/pages/reports">🚩 Reports</a>
+        <a href="/pages/verification">✅ Verifications</a>
+        <a href="/pages/contact-messages" class="active">✉️ Messages</a>
+      </aside>
+
+      <div>
+        <h1 style="margin-bottom:24px;">Contact Messages</h1>
+        <div id="list">
+          <div class="skeleton" style="height:100px; border-radius:12px;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent Admin</div></div>
+  </footer>
+
+  <script src="/js/i18n.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/components.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
+
+    (async () => {
+      try {
+        const { data } = await API.get('/contacts');
+        const el = document.getElementById('list');
+        
+        if (!data.length) {
+          el.innerHTML = '<div class="empty" style="background:#fff;border-radius:12px;"><h3>No messages</h3><p>You have no contact messages yet.</p></div>';
+          return;
+        }
+
+        el.innerHTML = data.map(m => `
+          <div class="card mb-3" style="padding:24px; border-left: 4px solid ${m.status === 'New' ? 'var(--brand-500)' : 'var(--border)'};">
+            <div class="flex-between mb-2">
+              <div>
+                <strong style="font-size:1.1rem; color:var(--ink-900);">${escapeHtml(m.subject)}</strong>
+                <div class="text-muted" style="font-size:0.9rem;">
+                  From: ${escapeHtml(m.name)} &lt;${escapeHtml(m.email)}&gt;
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <span class="pill ${m.status === 'New' ? 'badge-new' : ''}">${m.status}</span>
+                <div class="text-muted" style="font-size:0.8rem; margin-top:4px;">${new Date(m.createdAt).toLocaleDateString()}</div>
+              </div>
+            </div>
+            <p style="background:var(--ink-50); padding:12px; border-radius:8px; margin:12px 0; font-size:0.95rem;">${escapeHtml(m.message)}</p>
+            ${m.status === 'New' ? `<button class="btn btn-sm btn-ghost" data-read="${m._id}">Mark as Read</button>` : ''}
+            <a href="mailto:${escapeHtml(m.email)}?subject=Re: ${escapeHtml(m.subject)}" class="btn btn-sm btn-primary" style="margin-left:8px;">Reply via Email</a>
+          </div>
+        `).join('');
+
+        el.querySelectorAll('[data-read]').forEach(b => b.onclick = async () => {
+          await API.patch('/contacts/' + b.dataset.read + '/read', {});
+          toast('Marked as read', 'success');
+          setTimeout(() => location.reload(), 500);
+        });
+
+      } catch (e) { toast(e.message, 'error'); }
+    })();
+  </script>
+</body>
+</html>

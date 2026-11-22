@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Overview — NaijaRent</title>
+  <title>Admin Dashboard — NaijaRent</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/css/style.css" />
   <link rel="stylesheet" href="/css/home.css" />
@@ -23,13 +23,23 @@
       .admin-sidebar a.active { border-left: none; border-bottom-color: var(--brand-500); }
     }
 
-    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .stat-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; box-shadow: var(--shadow-sm); border-top: 4px solid var(--brand-500); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .stat-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-sm); border-top: 4px solid var(--brand-500); }
     .stat-box.accent { border-top-color: var(--accent-500); }
     .stat-box.warn { border-top-color: var(--warn-500); }
     .stat-box.danger { border-top-color: var(--danger-500); }
-    .stat-box .v { font-size: 1.8rem; font-weight: 800; color: var(--ink-900); line-height: 1.2; }
-    .stat-box .l { font-size: 0.85rem; color: var(--ink-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 6px; }
+    .stat-box .v { font-size: 2rem; font-weight: 800; color: var(--ink-900); line-height: 1.1; }
+    .stat-box .l { font-size: 0.85rem; color: var(--ink-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 8px; }
+    
+    .dashboard-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 1024px) { .dashboard-split { grid-template-columns: 1fr; } }
+    
+    .activity-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .activity-card h3 { font-size: 1.1rem; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .activity-item { padding: 12px 0; border-bottom: 1px solid var(--ink-100); display: flex; justify-content: space-between; align-items: center; }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-item a { font-weight: 600; color: var(--ink-900); font-size: 0.95rem; }
+    .activity-item .time { font-size: 0.8rem; color: var(--text-muted); }
   </style>
 </head>
 <body>
@@ -42,6 +52,7 @@
         <a href="/pages/admin-dashboard" class="active">Admin Panel</a>
       </nav>
       <div class="nav-actions" id="navActions"></div>
+      <div class="lang-switcher" id="langSwitcher"></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
     </div>
   </header>
@@ -54,6 +65,7 @@
         <a href="/pages/admin-review">📝 Listing Reviews <span id="pendingBadge" class="pill badge-new" style="margin-left:auto; display:none;">0</span></a>
         <a href="/pages/reports">🚩 Reports</a>
         <a href="/pages/verification">✅ Verifications</a>
+        <a href="/pages/contact-messages">✉️ Messages</a>
       </aside>
 
       <!-- Main Content -->
@@ -66,30 +78,32 @@
           <a href="/pages/properties" class="btn btn-ghost btn-sm" target="_blank">View Live Site ↗</a>
         </div>
 
+        <!-- Stats Row -->
         <div class="stat-grid" id="stats">
           <div class="skeleton" style="height:100px; border-radius:12px;"></div>
           <div class="skeleton" style="height:100px; border-radius:12px;"></div>
           <div class="skeleton" style="height:100px; border-radius:12px;"></div>
         </div>
 
-        <h2 style="font-size:1.3rem; margin-bottom:16px;">Quick Actions</h2>
-        <div class="grid grid-2">
-          <a href="/pages/admin-review" class="card" style="padding:24px; text-decoration:none;">
-            <h3 style="margin:0 0 8px; color:var(--ink-900);">📝 Review Listings</h3>
-            <p class="text-muted" style="margin:0; font-size:0.9rem;">Approve or reject new property submissions.</p>
-          </a>
-          <a href="/pages/reports" class="card" style="padding:24px; text-decoration:none;">
-            <h3 style="margin:0 0 8px; color:var(--ink-900);">🚩 Moderate Reports</h3>
-            <p class="text-muted" style="margin:0; font-size:0.9rem;">Review flagged listings and take action.</p>
-          </a>
-          <a href="/pages/map" class="card" style="padding:24px; text-decoration:none;">
-            <h3 style="margin:0 0 8px; color:var(--ink-900);">🗺️ Map View</h3>
-            <p class="text-muted" style="margin:0; font-size:0.9rem;">See all live listings on an interactive map.</p>
-          </a>
-          <a href="/pages/verification" class="card" style="padding:24px; text-decoration:none;">
-            <h3 style="margin:0 0 8px; color:var(--ink-900);">✅ Trust & Safety</h3>
-            <p class="text-muted" style="margin:0; font-size:0.9rem;">Manage manual review flags and condition reports.</p>
-          </a>
+        <!-- Priority & Activity Split -->
+        <div class="dashboard-split">
+          <!-- Needs Attention -->
+          <div class="activity-card">
+            <h3>🚨 Needs Attention</h3>
+            <div id="needsAttention">
+              <div class="skeleton" style="height:60px; margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:60px;"></div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="activity-card">
+            <h3>📋 Recent Reports</h3>
+            <div id="recentReports">
+              <div class="skeleton" style="height:60px; margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:60px;"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -99,25 +113,30 @@
     <div class="container"><div class="footer-bottom">© <span id="year"></span> NaijaRent Admin</div></div>
   </footer>
 
+  <script src="/js/i18n.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/components.js"></script>
   <script src="/js/animations.js"></script>
   <script src="/js/ui.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (async () => { try { await I18n.init(); } catch {} })();
 
     (async () => {
       try {
-        const { stats } = await API.get('/admin/stats');
+        const [statsRes, activityRes] = await Promise.all([
+          API.get('/admin/stats'),
+          API.get('/admin/recent-activity')
+        ]);
         
-        // Map stats to the UI
+        const stats = statsRes.stats;
+        
+        // 1. Render Stats
         const statMap = [
-          { key: 'total', label: 'Total Listings', class: '' },
           { key: 'published', label: 'Published', class: 'accent' },
           { key: 'pending', label: 'Pending Review', class: 'warn' },
           { key: 'openReports', label: 'Open Reports', class: 'danger' },
-          { key: 'enquiries', label: 'Total Enquiries', class: '' },
-          { key: 'conditionReports', label: 'Condition Reports', class: '' }
+          { key: 'enquiries', label: 'Total Enquiries', class: '' }
         ];
 
         const el = document.getElementById('stats');
@@ -128,11 +147,45 @@
           </div>
         `).join('');
 
+        // 2. Render Pending Badge
         if (stats.pending > 0) {
           const badge = document.getElementById('pendingBadge');
           badge.textContent = stats.pending;
           badge.style.display = 'inline-block';
         }
+
+        // 3. Render Needs Attention (Pending Listings)
+        const attentionEl = document.getElementById('needsAttention');
+        if (!activityRes.recentPending.length) {
+          attentionEl.innerHTML = '<p class="text-muted" style="margin:0;">All clear! No pending listings.</p>';
+        } else {
+          attentionEl.innerHTML = activityRes.recentPending.map(p => `
+            <div class="activity-item">
+              <div>
+                <a href="/pages/property-details?id=${p._id}" target="_blank">${escapeHtml(p.title)}</a>
+                <div class="time">By ${escapeHtml(p.lister.name)}</div>
+              </div>
+              <a href="/pages/admin-review" class="btn btn-sm btn-primary">Review</a>
+            </div>
+          `).join('');
+        }
+
+        // 4. Render Recent Reports
+        const reportsEl = document.getElementById('recentReports');
+        if (!activityRes.recentReports.length) {
+          reportsEl.innerHTML = '<p class="text-muted" style="margin:0;">No open reports. Good job!</p>';
+        } else {
+          reportsEl.innerHTML = activityRes.recentReports.map(r => `
+            <div class="activity-item">
+              <div>
+                <a href="/pages/property-details?id=${r.property?._id}" target="_blank">${escapeHtml(r.property?.title || 'Deleted Listing')}</a>
+                <div class="time">${escapeHtml(r.reason)}</div>
+              </div>
+              <a href="/pages/reports" class="btn btn-sm btn-ghost">View</a>
+            </div>
+          `).join('');
+        }
+
       } catch (e) {
         toast('Admin access required', 'error'); 
         window.location.href = '/pages/admin-login';

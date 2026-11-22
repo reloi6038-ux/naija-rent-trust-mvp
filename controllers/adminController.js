@@ -44,3 +44,13 @@ exports.listPending = async (req, res, next) => {
     res.json({ success: true, data: items });
   } catch (e) { next(e); }
 };
+
+exports.recentActivity = async (req, res, next) => {
+  try {
+    const [recentReports, recentPending] = await Promise.all([
+      Report.find({ status: 'Open' }).sort({ createdAt: -1 }).limit(5).populate('property', 'title'),
+      Property.find({ status: 'Pending' }).sort({ createdAt: -1 }).limit(5).populate('lister', 'name')
+    ]);
+    res.json({ success: true, recentReports, recentPending });
+  } catch (e) { next(e); }
+};
